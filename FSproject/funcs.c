@@ -19,7 +19,6 @@ int chdir(char *pathname)
 		return 0;
 	}
 	mip = iget(running->cwd->dev, ino);
-	//mip = iget (root->dev,ino);
 	if((mip->INODE.i_mode & 0100000) == 0100000){
 		iput(mip);
 		printf("cannot cd to non dir\n");
@@ -101,7 +100,6 @@ void pwd(MINODE *wd, int child)
 	char buf[512];
 	char *cpy;
 	char name[64];
-	//printf("\n\nroot:%d wd:%d child:%d\n", root->ino, wd->ino, child);
 	
 	if (wd->ino == root->ino){
     printf("/");
@@ -132,36 +130,47 @@ int makedir(char *name){
   
 	MINODE *pip = iget(running->cwd->dev, findino(running->cwd, 0));
 	
-	
-	if(!S_ISDIR(pip->INODE.i_mode)){ //check its a directory
+	//check its a directory
+	if(!S_ISDIR(pip->INODE.i_mode)){
 		printf("ERROR:pip is not dir\n");
 		return -1;
 	}
 	
-	////////////// check child doen't exist
-	get_block(dev, pip->INODE.i_block[0], buf); 
-  dp = (DIR *)buf;
-  cp = buf;
+	// check child doen't exist
+	//get_block(dev, pip->INODE.i_block[0], buf); 
+  //dp = (DIR *)buf;
+  //cp = buf;
   
-  while (cp < buf + BLKSIZE){
-     strncpy(temp, dp->name, dp->name_len);
-     temp[dp->name_len] = 0;
+  //while (cp < buf + BLKSIZE){
+     //strncpy(temp, dp->name, dp->name_len);
+     //temp[dp->name_len] = 0;
      
-     if(strcmp(temp, name)==0){
-     	printf("Directory already exists\n");
-     	return -1;
-     }
+     //if(strcmp(temp, name)==0){
+     	//printf("Directory already exists\n");
+     	//return -1;
+     //}
      
-     cp += dp->rec_len;
-     dp = (DIR *)cp;
+     //cp += dp->rec_len;
+     //dp = (DIR *)cp;
+  //}
+  if(search(pip, name)){
+  	printf("Directory already exists\n");
+  	return -1;
   }
 	
-	pip->refCount++;
 	
-	//mymkdir(pip, name);
+	
+	//if(mymkdir(pip, name)){
+		//pip->refCount++;
+		//pip->INODE.i_mtime = time(NULL); //might be broken
+		//pip->dirty = 1;
+	//}
+	
 	iput(pip);
 	return 0;
 }
+
+
 
 
 
