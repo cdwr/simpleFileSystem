@@ -13,11 +13,16 @@ GD    *gp;
 INODE *ip;
 DIR   *dp;   
 
+#define SUPERBLOCK 1
+#define GDBLOCK 2
+#define ROOT_INODE 2
+
 #define FREE        0
 #define READY       1
 
 #define BLKSIZE  1024
 #define NMINODE   128
+#define NMTABLE		 10 //added, not used
 #define NFD        16
 #define NPROC       2
 
@@ -36,6 +41,20 @@ typedef struct oft{
   MINODE *mptr;
   int  offset;
 }OFT;
+
+typedef struct mtable{
+	int dev;
+	int ninodes;
+	int nblocks;
+	int free_blocks;
+	int free_inodes;
+	int bmap;
+	int imap;
+	int iblock;
+	MINODE *mntDirPtr;
+	char devname[64];
+	char mntName[64];
+}MTABLE;
 
 typedef struct proc{
   struct proc *next;

@@ -232,13 +232,12 @@ int ialloc(int dev){
 	int i;
 	char buf[BLKSIZE];
 	
-	MTABLE *mp = (MTABLE *) get_mtable(dev);
-	get_block(dev, mp->imap, buf);
-	for(i=0; i<mp->imap; i++){
+	get_block(dev, imap, buf);
+	for(i=0; i<imap; i++){
 		if(tst_bit(buf, i)==0){
 			set_bit(buf, i);
-			put_block(dev, mp->imap, buf);
-			decFreeInodes(dev);
+			put_block(dev, imap, buf);
+			decFreeInodes(dev); //not in sample, but is in book??
 			return (i+1);
 		}
 	}
