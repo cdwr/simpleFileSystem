@@ -1,4 +1,4 @@
-/************* cd_ls_pwd.c file **************/
+/************* funcs.c file **************/
 
 int chdir(char *pathname)   
 {
@@ -120,6 +120,47 @@ void pwd(MINODE *wd, int child)
 	}
 	
   return;
+}
+
+int makedir(char *name){
+	char *ppath;
+	char *pino;
+	
+	char buf[BLKSIZE], temp[256];
+  DIR *dp;
+  char *cp;
+  
+	MINODE *pip = iget(running->cwd->dev, findino(running->cwd, 0));
+	
+	
+	if(!S_ISDIR(pip->INODE.i_mode)){ //check its a directory
+		printf("ERROR:pip is not dir\n");
+		return -1;
+	}
+	
+	////////////// check child doen't exist
+	get_block(dev, pip->INODE.i_block[0], buf); 
+  dp = (DIR *)buf;
+  cp = buf;
+  
+  while (cp < buf + BLKSIZE){
+     strncpy(temp, dp->name, dp->name_len);
+     temp[dp->name_len] = 0;
+     
+     if(strcmp(temp, name)==0){
+     	printf("Directory already exists\n");
+     	return -1;
+     }
+     
+     cp += dp->rec_len;
+     dp = (DIR *)cp;
+  }
+	
+	pip->refCount++;
+	
+	//mymkdir(pip, name);
+	iput(pip);
+	return 0;
 }
 
 

@@ -26,7 +26,7 @@ int fd, dev;
 int nblocks, ninodes, bmap, imap, inode_start; // disk parameters
 
 #include "util.c"
-#include "cd_ls_pwd.c"
+#include "funcs.c"
 
 int init()
 {
@@ -129,7 +129,11 @@ int main(int argc, char *argv[ ])
        printf("\n");
     }
     else if (strcmp(cmd, "quit")==0)
-       quit();
+    	quit();
+		else if (strcmp(cmd, "mkdir")==0)
+			makedir(pathname);
+		else
+			printf("Invalid command \"%s\"", cmd);	
   }
 }
 
