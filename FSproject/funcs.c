@@ -137,22 +137,6 @@ int makedir(char *name){
 	}
 	
 	// check child doen't exist
-	//get_block(dev, pip->INODE.i_block[0], buf); 
-  //dp = (DIR *)buf;
-  //cp = buf;
-  
-  //while (cp < buf + BLKSIZE){
-     //strncpy(temp, dp->name, dp->name_len);
-     //temp[dp->name_len] = 0;
-     
-     //if(strcmp(temp, name)==0){
-     	//printf("Directory already exists\n");
-     	//return -1;
-     //}
-     
-     //cp += dp->rec_len;
-     //dp = (DIR *)cp;
-  //}
   if(search(pip, name)){
   	printf("Directory already exists\n");
   	return -1;

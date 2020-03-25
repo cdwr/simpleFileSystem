@@ -195,6 +195,13 @@ int findmyname(MINODE *parent, u32 myino, char *myname)
   return;
 }
 
+int enter_name(MINODE *pip, int myino, char *myname){
+	//for(int blk = 0; i <= 11; i++){
+		//if(pip->INODE.i_block[blk]
+	//}
+	return;
+}
+
 int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 {
   char buf[BLKSIZE], *cp;   
@@ -217,15 +224,15 @@ int set_bit(char *buf, int bit){
 }
 
 int decFreeInodes(int dev){
-	char buf[BLKSIZE]; //need to declare?
-	get_block(dev, 1, buf);
+	char buf[BLKSIZE]; 
+	get_block(dev, SUPERBLOCK, buf);
 	sp = (SUPER *)buf;
 	sp->s_free_inodes_count--;
-	put_block(dev, 1, buf);
-	get_block(dev, 2, buf);
+	put_block(dev, SUPERBLOCK, buf);
+	get_block(dev, GDBLOCK, buf);
 	gp = (GD *)buf;
 	gp->bg_free_inodes_count--;
-	put_block(dev, 2, buf);
+	put_block(dev, GDBLOCK, buf);
 }
 
 int ialloc(int dev){
