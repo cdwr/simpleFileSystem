@@ -222,11 +222,19 @@ int create_file(char *name){
 	DIR *dp;
 	char *cp;
 
-	MINODE *pip = iget(running->cwd->dev, findino(running->cwd, 0));
+	MINODE *pip;
+
+	if (name[0] == '/') {
+		pip = root;
+		dev = root->dev;
+	} else {
+		pip = running->cwd;
+		dev = pip->dev;
+	}
 	
 	//check its a directory
-	if(!S_ISREG(pip->INODE.i_mode)){
-		printf("ERROR:pip is not file\n");
+	if(!S_ISDIR(pip->INODE.i_mode)){
+		printf("ERROR:pip is not a directory\n");
 		return -1;
 	}
 	
