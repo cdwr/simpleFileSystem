@@ -199,12 +199,12 @@ int enter_name(MINODE *pip, int myino, char *myname){
 	char buf[BLKSIZE], *cp;
   DIR *dp;
   int need_l = 4 *((8+strlen(myname)+3)/4);
-	int ideal_l=0;
+	int ideal_l = 0;
 	int remain;
 	int bno;
 	
   for(int i = 0; i<12; i++){
-  	if(pip->i_block[i]==0){
+  	if(pip->INODE.i_block[i]==0){
     	bno=balloc(dev);
     	pip->INODE.i_block[i]=bno;
     	get_block(dev, bno, buf);
@@ -229,11 +229,11 @@ int enter_name(MINODE *pip, int myino, char *myname){
      	dp=(DIR*)cp;
     }
      	
-    ideal_len = 4*((8+dp->name_len+3)/4);
+    ideal_l = 4*((8+dp->name_len+3)/4);
     remain=dp->rec_len - ideal_l;
 
     if(remain >= need_l){
-    	dp->rec_len=ideal_len;
+    	dp->rec_len=ideal_l;
       cp+=dp->rec_len;
       dp=(DIR*)cp;
       dp->inode=myino;
