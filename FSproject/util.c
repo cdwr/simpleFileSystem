@@ -302,7 +302,7 @@ int ialloc(int dev){
 	char buf[BLKSIZE];
 	
 	get_block(dev, imap, buf);
-	for(i=0; i<imap; i++){
+	for(i=0; i<ninodes; i++){
 		if(tst_bit(buf, i)==0){
 			set_bit(buf, i);
       decFreeInodes(dev); //not in sample, but is in book??

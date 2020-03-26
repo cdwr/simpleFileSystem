@@ -144,8 +144,7 @@ int makedir(char *name){
 		return -1;
 	}
 	
-	
-	
+
 	if(mymkdir(pip, name)){
 		pip->INODE.i_links_count++;
 		pip->INODE.i_mtime = time(0L); //might be broken
@@ -162,8 +161,8 @@ int mymkdir(MINODE *pip, char *name)
 
 	char buf[BLKSIZE];
 
-	int ino = ialloc(dev);
-	int bno = balloc(dev);
+	int ino = ialloc(pip->dev);
+	int bno = balloc(pip->dev);
 
 	printf("ino and bno are: %d, %d", ino, bno);
 
@@ -189,7 +188,7 @@ int mymkdir(MINODE *pip, char *name)
 
 
 	int pino = getino(name);
-	get_block(dev, bno, buf);
+	get_block(pip->dev, bno, buf);
 
 	bzero(buf, BLKSIZE);            // optional: clear buf[ ] to 0
 	DIR *dp = (DIR *)buf;           // make . entry
