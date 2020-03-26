@@ -130,7 +130,15 @@ int makedir(char *name){
 	printf("name: %s", name);
 	printf("dev: %d", dev);
 
-	MINODE *pip = iget(running->cwd->dev, findino(running->cwd, 0));
+	MINODE *pip;
+
+	if (name[0] == '/') {
+        pip = root;
+        dev = root->dev;
+    } else {
+        pip = running->cwd;
+        dev = pip->dev;
+    }
 	
 	//check its a directory
 	if(!S_ISDIR(pip->INODE.i_mode)){
