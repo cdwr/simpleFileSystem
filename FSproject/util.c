@@ -77,31 +77,25 @@ MINODE *iget(int dev, int ino)
 
 void iput(MINODE *mip)
 {
-
- mip->refCount--;
- 
- if (mip->refCount > 0)  // minode is still in use
-    return;
- if (!mip->dirty)        // INODE has not changed; no need to write back
-    return;
- 
- /* write INODE back to disk */
- /***** NOTE *******************************************
-  For mountroot, we never MODIFY any loaded INODE
-                 so no need to write it back
-  FOR LATER WROK: MUST write INODE back to disk if refCount==0 && DIRTY
-
-  Write YOUR code here to write INODE back to disk
- ********************************************************/
-  int ino = mip->ino;
-	int block = (ino-1) / 8 + inode_start;
-	int offset = (ino-1) % 8;
+  int blk, disp;
+  INODE *ip;
   char buf[BLKSIZE];
-	get_block(mip->dev, block, buf);
-	ip = (INODE*)buf + offset;
-	*ip = mip->INODE;
-	put_block(mip->dev, block, buf);
-	mip->dirty = 0;
+  mip->refCount--;
+
+  if (mip->refCount > 0) 
+    return 0;
+  if (!mip->dirty) 
+    return 0;
+
+  // write INODE back to disk
+  blk = (mip->ino - 1) / 8 + inode_start;
+  disp = (mip->ino - 1) % 8;
+  get_block(mip->dev, blk, buf);
+  ip = (INODE *)buf + disp;
+  *ip = mip->INODE;
+  put_block(mip->dev, blk, buf);
+  mip->dirty = 0;
+	return 0;
 }
 
 int search(MINODE *mip, char *name)
@@ -289,6 +283,20 @@ int decFreeInodes(int dev){
 	put_block(dev, GDBLOCK, buf);
 }
 
+
+int decFreeBlocks(int dev){
+	char buf[BLKSIZE];
+	get_block(dev, SUPERBLOCK, buf);
+	sp=(SUPER*)buf;
+	sp->s_free_blocks_count--;
+	put_block(dev, SUPERBLOCK, buf);
+
+	get_block(dev, GDBLOCK, buf);
+	gp=(GD*)buf;
+	gp->bg_free_blocks_count--;
+	put_block(dev, SUPERBLOCK, buf);
+}
+
 int ialloc(int dev){
 	int i;
 	char buf[BLKSIZE];
@@ -297,25 +305,14 @@ int ialloc(int dev){
 	for(i=0; i<imap; i++){
 		if(tst_bit(buf, i)==0){
 			set_bit(buf, i);
+      decFreeInodes(dev); //not in sample, but is in book??
 			put_block(dev, imap, buf);
-			decFreeInodes(dev); //not in sample, but is in book??
+
 			return (i+1);
 		}
 	}
+  printf("no more free inodes\n");
 	return 0;
-}
-
-int decFreeBlocks(int dev){
-	char buf[BLKSIZE];
-	get_block(dev, 1, buf);
-	sp=(SUPER*)buf;
-	sp->s_free_blocks_count--;
-	put_block(dev, 1, buf);
-
-	get_block(dev, 2, buf);
-	gp=(GD*)buf;
-	gp->bg_free_blocks_count--;
-	put_block(dev, 2, buf);
 }
 
 int balloc(int dev)
