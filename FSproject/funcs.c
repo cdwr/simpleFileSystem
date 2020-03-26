@@ -186,8 +186,6 @@ int mymkdir(MINODE *pip, char *name)
 	mip->dirty = 1;										// mark minode dirty
 	iput(mip);											// write INODE to disk
 
-
-	int pino = getino(name);
 	get_block(pip->dev, bno, buf);
 
 	bzero(buf, BLKSIZE);            // optional: clear buf[ ] to 0
@@ -197,7 +195,7 @@ int mymkdir(MINODE *pip, char *name)
 	dp->name_len = 1;
 	dp->name[0] = '.';              // make .. entry: pino=parent DIR ino, blk=allocated block
 	dp = (char *)dp + 12;
-	dp->inode = pino;
+	dp->inode = pip->ino;
 	dp->rec_len = BLKSIZE-12;       // rec_len spans block
 	dp->name_len = 2;
 	dp->name[0] = dp->name[1] = '.';
