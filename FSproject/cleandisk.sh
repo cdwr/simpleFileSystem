@@ -1,0 +1,2 @@
+rm diskimage
+cp ../../diskimage .
