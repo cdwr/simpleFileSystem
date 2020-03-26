@@ -77,9 +77,6 @@ MINODE *iget(int dev, int ino)
 
 void iput(MINODE *mip)
 {
- int i, block, offset;
- char buf[BLKSIZE];
- INODE *ip;
 
  mip->refCount--;
  
@@ -96,7 +93,16 @@ void iput(MINODE *mip)
 
   Write YOUR code here to write INODE back to disk
  ********************************************************/
-} 
+  int ino = mip->ino;
+	int block = (ino-1) / 8 + inode_start;
+	int offset = (ino-1) % 8;
+  char buf[BLKSIZE];
+	get_block(mip->dev, block, buf);
+	ip = (INODE*)buf + offset;
+	*ip = mip->INODE;
+	put_block(mip->dev, block, buf);
+	mip->dirty = 0;
+}
 
 int search(MINODE *mip, char *name)
 {
@@ -299,6 +305,19 @@ int ialloc(int dev){
 	return 0;
 }
 
+int decFreeBlocks(int dev){
+	char buf[BLKSIZE];
+	get_block(dev, 1, buf);
+	sp=(SUPER*)buf;
+	sp->s_free_blocks_count--;
+	put_block(dev, 1, buf);
+
+	get_block(dev, 2, buf);
+	gp=(GD*)buf;
+	gp->bg_free_blocks_count--;
+	put_block(dev, 2, buf);
+}
+
 int balloc(int dev)
 {
   int  b;
@@ -310,6 +329,7 @@ int balloc(int dev)
   for (b=0; b < ninodes; b++){
     if (tst_bit(buf, b)==0){
        set_bit(buf,b);
+       decFreeBlocks(dev);
 
        put_block(dev, bmap, buf);
 

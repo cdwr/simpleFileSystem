@@ -127,6 +127,8 @@ int makedir(char *name){
 	char buf[BLKSIZE], temp[256];
 	DIR *dp;
 	char *cp;
+	printf("name: %s", name);
+	printf("dev: %d", dev);
 
 	MINODE *pip = iget(running->cwd->dev, findino(running->cwd, 0));
 	
@@ -145,8 +147,8 @@ int makedir(char *name){
 	
 	
 	if(mymkdir(pip, name)){
-		pip->refCount++;
-		pip->INODE.i_mtime = time(NULL); //might be broken
+		pip->INODE.i_links_count++;
+		pip->INODE.i_mtime = time(0L); //might be broken
 		pip->dirty = 1;
 	}
 	
@@ -187,6 +189,7 @@ int mymkdir(MINODE *pip, char *name)
 
 
 	int pino = getino(name);
+	get_block(dev, bno, buf);
 
 	bzero(buf, BLKSIZE);            // optional: clear buf[ ] to 0
 	DIR *dp = (DIR *)buf;           // make . entry
@@ -217,8 +220,8 @@ int create_file(char *name){
 	MINODE *pip = iget(running->cwd->dev, findino(running->cwd, 0));
 	
 	//check its a directory
-	if(!S_ISDIR(pip->INODE.i_mode)){
-		printf("ERROR:pip is not dir\n");
+	if(!S_ISREG(pip->INODE.i_mode)){
+		printf("ERROR:pip is not file\n");
 		return -1;
 	}
 	
@@ -269,22 +272,6 @@ int my_create_file(MINODE *pip, char *name){
 	
 	mip->dirty = 1;										// mark minode dirty
 	iput(mip);											// write INODE to disk
-
-
-	int pino = getino(name);
-
-	bzero(buf, BLKSIZE);            // optional: clear buf[ ] to 0
-	DIR *dp = (DIR *)buf;           // make . entry
-	dp->inode = ino;
-	dp->rec_len = 12;
-	dp->name_len = 1;
-	dp->name[0] = '.';              // make .. entry: pino=parent DIR ino, blk=allocated block
-	dp = (char *)dp + 12;
-	dp->inode = pino;
-	dp->rec_len = BLKSIZE-12;       // rec_len spans block
-	dp->name_len = 2;
-	dp->name[0] = dp->name[1] = '.';
-	put_block(pip->dev, bno, buf);       // write to blk on diks
 
 	enter_name(pip, ino, name);
 	return 1;
