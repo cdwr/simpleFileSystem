@@ -298,3 +298,24 @@ int ialloc(int dev){
 	}
 	return 0;
 }
+
+int balloc(int dev)
+{
+  int  b;
+  char buf[BLKSIZE];
+
+  // read inode_bitmap block
+  get_block(dev, bmap, buf);
+
+  for (b=0; b < ninodes; b++){
+    if (tst_bit(buf, b)==0){
+       set_bit(buf,b);
+
+       put_block(dev, bmap, buf);
+
+       return b+1;
+    }
+  }
+  printf("balloc(): no more free blocks\n");
+  return 0;
+}
