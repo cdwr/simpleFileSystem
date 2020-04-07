@@ -195,61 +195,6 @@ int findmyname(MINODE *parent, u32 myino, char *myname)
   return;
 }
 
-int enter_name(MINODE *pip, int myino, char *myname){
-	char buf[BLKSIZE], *cp;
-  DIR *dp;
-  int need_l = 4 *((8+strlen(myname)+3)/4);
-	int ideal_l = 0;
-	int remain;
-	int bno;
-	
-  for(int i = 0; i<12; i++){
-  	if(pip->INODE.i_block[i]==0){
-    	bno=balloc(dev);
-    	pip->INODE.i_block[i]=bno;
-    	get_block(dev, bno, buf);
-    	pip->INODE.i_size+=BLKSIZE;
-    	cp=buf;
-    	dp=(DIR*)buf;
-    	dp->inode=myino;
-    	dp->rec_len=BLKSIZE;
-    	dp->name_len=strlen(myname);
-    	strcpy(dp->name, myname);
-    	put_block(dev, bno, buf);
-    	return 1;            
-     }
-
-    bno=pip->INODE.i_block[i];
-    get_block(dev, bno, buf);
-    cp=buf;
-    dp=(DIR*)buf;
-
-    while(cp+dp->rec_len<buf+BLKSIZE){
-    	cp+=dp->rec_len;
-     	dp=(DIR*)cp;
-    }
-     	
-    ideal_l = 4*((8+dp->name_len+3)/4);
-    remain=dp->rec_len - ideal_l;
-
-    if(remain >= need_l){
-    	dp->rec_len=ideal_l;
-      cp+=dp->rec_len;
-      dp=(DIR*)cp;
-      dp->inode=myino;
-      dp->rec_len=BLKSIZE-((u32)cp-(u32)buf);
-      dp->name_len=strlen(myname);
-      strcpy(dp->name, myname);
-      put_block(dev, bno, buf);
-      return 1;
-		}
-  }
-   
-	printf("Only 12 block allowed\n");
-  return -1;
-}
-
-
 int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 {
   char buf[BLKSIZE], *cp;   
@@ -383,21 +328,21 @@ int balloc(int dev)
 
 int idealloc(int dev, int ino)
 {
-	char buf[BLKSIZE];
+  char buf[BLKSIZE];
   if (ino > ninodes){
     printf("inumber %d out of range\n", ino);
     return 0;
   }
 
   // get inode bitmap block
-	get_block(dev, imap, buf);
-	clr_bit(buf, ino-1);
-	incFreeInodes(dev);
+  get_block(dev, imap, buf);
+  clr_bit(buf, ino-1);
+  incFreeInodes(dev);
 
   // write buf back
-	put_block(dev, imap, buf);
+  put_block(dev, imap, buf);
 
-	return 0;
+  return 0;
 }
 
 int bdealloc(int dev, int bno)

@@ -26,7 +26,8 @@ int fd, dev;
 int nblocks, ninodes, bmap, imap, inode_start; // disk parameters
 
 #include "util.c"
-#include "funcs.c"
+#include "cd_ls_pwd.c"
+#include "mkdir_create.c"
 
 int init()
 {
