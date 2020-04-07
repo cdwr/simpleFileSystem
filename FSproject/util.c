@@ -271,12 +271,54 @@ int set_bit(char *buf, int bit){
 	buf[bit/8] |= (1 << (bit % 8));
 }
 
+int clr_bit(char *buf, int bit)
+{
+	buf[bit/8] &= (1 << (bit % 8));
+}
+
+int incFreeInodes(int dev)
+{
+	char buf[BLKSIZE];
+	// inc free INODEs count in SUPER
+	get_block(dev, SUPERBLOCK, buf);
+	sp = (SUPER *)buf;
+	sp->s_free_inodes_count++;
+	put_block(dev, SUPERBLOCK, buf);
+
+	// inc free INODEs count in GD
+	get_block(dev, GDBLOCK, buf);
+	gp = (GD *)buf;
+	gp->bg_free_inodes_count++;
+	put_block(dev, GDBLOCK, buf);
+	return 0;
+}
+
+int incFreeBlocks(int dev)
+{
+	char buf[BLKSIZE];
+	// inc free blocks count in SUPER
+	get_block(dev, SUPERBLOCK, buf);
+	sp = (SUPER *)buf;
+	sp->s_free_blocks_count++;
+	put_block(dev, SUPERBLOCK, buf);
+
+	// inc free blocks count in GD
+	get_block(dev, GDBLOCK, buf);
+	gp = (GD *)buf;
+	gp->bg_free_blocks_count++;
+	put_block(dev, GDBLOCK, buf);
+	return 0;
+}
+
 int decFreeInodes(int dev){
+  // dec free INODes count in SUPEBLOCK
 	char buf[BLKSIZE]; 
 	get_block(dev, SUPERBLOCK, buf);
 	sp = (SUPER *)buf;
 	sp->s_free_inodes_count--;
 	put_block(dev, SUPERBLOCK, buf);
+
+  // dec free INODes count in GD
 	get_block(dev, GDBLOCK, buf);
 	gp = (GD *)buf;
 	gp->bg_free_inodes_count--;
@@ -285,12 +327,14 @@ int decFreeInodes(int dev){
 
 
 int decFreeBlocks(int dev){
+  // dec free Blocks count in SUPEBLOCK
 	char buf[BLKSIZE];
 	get_block(dev, SUPERBLOCK, buf);
 	sp=(SUPER*)buf;
 	sp->s_free_blocks_count--;
 	put_block(dev, SUPERBLOCK, buf);
 
+  // dec free Blocks count in GD
 	get_block(dev, GDBLOCK, buf);
 	gp=(GD*)buf;
 	gp->bg_free_blocks_count--;
@@ -335,4 +379,33 @@ int balloc(int dev)
   }
   printf("balloc(): no more free blocks\n");
   return 0;
+}
+
+int idealloc(int dev, int ino)
+{
+	char buf[BLKSIZE];
+  if (ino > ninodes){
+    printf("inumber %d out of range\n", ino);
+    return 0;
+  }
+
+  // get inode bitmap block
+	get_block(dev, imap, buf);
+	clr_bit(buf, ino-1);
+	incFreeInodes(dev);
+
+  // write buf back
+	put_block(dev, imap, buf);
+
+	return 0;
+}
+
+int bdealloc(int dev, int bno)
+{
+	char buf[BLKSIZE];
+	get_block(dev, bmap, buf);
+	clr_bit(buf, bno);
+	incFreeBlocks(dev);
+	put_block(dev, bmap, buf);
+	return 0;
 }
