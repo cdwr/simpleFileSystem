@@ -28,6 +28,7 @@ int nblocks, ninodes, bmap, imap, inode_start; // disk parameters
 #include "util.c"
 #include "cd_ls_pwd.c"
 #include "mkdir_create.c"
+#include "link_unlink.c"
 
 int init()
 {
@@ -67,7 +68,7 @@ int main(int argc, char *argv[ ])
 {
   int ino;
   char buf[BLKSIZE];
-  char line[128], cmd[32], pathname[128];
+  char line[128], cmd[32], pathname[128], secondArg[128];
  
   printf("checking EXT2 FS ....");
   if ((fd = open(disk, O_RDWR)) < 0){
@@ -110,7 +111,7 @@ int main(int argc, char *argv[ ])
   // WRTIE code here to create P1 as a USER process
   
   while(1){
-    printf("input command : [ls|cd|pwd|mkdir|touch|quit] ");
+    printf("input command : [ls|cd|pwd|mkdir|touch|quit|link] ");
     fgets(line, 128, stdin);
     line[strlen(line)-1] = 0;
 
@@ -118,8 +119,8 @@ int main(int argc, char *argv[ ])
        continue;
     pathname[0] = 0;
 
-    sscanf(line, "%s %s", cmd, pathname);
-    printf("cmd=%s pathname=%s\n", cmd, pathname);
+    sscanf(line, "%s %s %s", cmd, pathname, secondArg);
+    printf("cmd=%s pathname=%s secondArg=%s\n", cmd, pathname, secondArg);
   
     if (strcmp(cmd, "ls")==0)
        ls(pathname);
@@ -129,12 +130,14 @@ int main(int argc, char *argv[ ])
        pwd(running->cwd,0);
        printf("\n");
     }
-    else if (strcmp(cmd, "quit")==0)
+    else if (strcmp(cmd, "quit") == 0)
     	quit();
-		else if (strcmp(cmd, "mkdir")==0)
+		else if (strcmp(cmd, "mkdir") == 0)
 			makedir(pathname);
-    else if (strcmp(cmd, "touch")==0)
+    else if (strcmp(cmd, "touch") == 0)
 			create_file(pathname);
+    else if (strcmp(cmd, "link") == 0)
+      link(pathname, secondArg);
 		else
 			printf("Invalid command \"%s\"", cmd);	
   }
