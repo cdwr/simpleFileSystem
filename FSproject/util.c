@@ -294,7 +294,7 @@ int decFreeBlocks(int dev){
 	get_block(dev, GDBLOCK, buf);
 	gp=(GD*)buf;
 	gp->bg_free_blocks_count--;
-	put_block(dev, SUPERBLOCK, buf);
+	put_block(dev, GDBLOCK, buf);
 }
 
 int ialloc(int dev){

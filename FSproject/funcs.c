@@ -121,24 +121,22 @@ void pwd(MINODE *wd, int child)
 }
 
 int makedir(char *name){
-	char *ppath;
-	char *pino;
-	
-	char buf[BLKSIZE], temp[256];
-	DIR *dp;
-	char *cp;
-	printf("name: %s", name);
-	printf("dev: %d", dev);
-
-	MINODE *pip;
-
+	MINODE *mip, *pip;
+	char pathcpy[64];
+	char *parent, *child;
+	int pino;
 	if (name[0] == '/') {
-        pip = root;
-        dev = root->dev;
-    } else {
-        pip = running->cwd;
-        dev = pip->dev;
-    }
+		mip = root;
+		dev = root->dev;
+	} else {
+		mip = running->cwd;
+		dev = mip->dev;
+	}
+	strcpy(pathcpy, name);
+	child = basename(pathcpy);
+	parent = dirname(name);
+	pino = getino(parent);
+	pip = iget(dev, pino);
 	
 	//check its a directory
 	if(!S_ISDIR(pip->INODE.i_mode)){
@@ -172,9 +170,9 @@ int mymkdir(MINODE *pip, char *name)
 	int ino = ialloc(pip->dev);
 	int bno = balloc(pip->dev);
 
-	printf("ino and bno are: %d, %d", ino, bno);
+	printf("ino and bno are: %d, %d\n", ino, bno);
 
-	mip = iget(dev, ino);
+	mip = iget(pip->dev, ino);
 	INODE *ip = &mip->INODE;
 
 	ip->i_mode = 0x41ED;								// OR 040755: DIR type and permissions
@@ -215,22 +213,22 @@ int mymkdir(MINODE *pip, char *name)
 
 
 int create_file(char *name){
-	char *ppath;
-	char *pino;
-	
-	char buf[BLKSIZE], temp[256];
-	DIR *dp;
-	char *cp;
-
-	MINODE *pip;
-
+	MINODE *mip, *pip;
+	char pathcpy[64];
+	char *parent, *child;
+	int pino;
 	if (name[0] == '/') {
-		pip = root;
+		mip = root;
 		dev = root->dev;
 	} else {
-		pip = running->cwd;
-		dev = pip->dev;
+		mip = running->cwd;
+		dev = mip->dev;
 	}
+	strcpy(pathcpy, name);
+	child = basename(pathcpy);
+	parent = dirname(name);
+	pino = getino(parent);
+	pip = iget(dev, pino);
 	
 	//check its a directory
 	if(!S_ISDIR(pip->INODE.i_mode)){
@@ -244,10 +242,8 @@ int create_file(char *name){
 		return -1;
 	}
 	
-	
-	
 	if(my_create_file(pip, name)){
-		pip->INODE.i_mtime = time(NULL); //might be broken
+		pip->INODE.i_mtime = time(0L); //might be broken
 		pip->dirty = 1;
 	}
 	
@@ -259,14 +255,11 @@ int create_file(char *name){
 int my_create_file(MINODE *pip, char *name){
 	MINODE *mip;
 
-	char buf[BLKSIZE];
+	int ino = ialloc(pip->dev);
 
-	int ino = ialloc(dev);
-	int bno = balloc(dev);
+	printf("ino and bno are: %d\n", ino);
 
-	printf("ino and bno are: %d, %d", ino, bno);
-
-	mip = iget(dev, ino);
+	mip = iget(pip->dev, ino);
 	INODE *ip = &mip->INODE;
 
 	ip->i_mode = 0x81A4;								// OR 0100644: DIR type and permissions
@@ -275,14 +268,9 @@ int my_create_file(MINODE *pip, char *name){
 	ip->i_links_count = 1;
 	ip->i_size = BLKSIZE;								// Size in bytes 
 	ip->i_atime = ip->i_ctime = ip->i_mtime = time(0L);	// set to current time
-	ip->i_blocks = 2;									// LINUX: Blocks count in 512-byte chunks 
-	ip->i_block[0] = bno;								// new DIR has one data block
+	ip->i_blocks = 0;									// LINUX: Blocks count in 512-byte chunks 
+	ip->i_block[0] = 0;
 
-	for(int i = 1; i < 15; i++)
-	{
-		ip->i_block[i] = 0;
-	}
-	
 	mip->dirty = 1;										// mark minode dirty
 	iput(mip);											// write INODE to disk
 
