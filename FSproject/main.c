@@ -28,6 +28,7 @@ int nblocks, ninodes, bmap, imap, inode_start; // disk parameters
 #include "util.c"
 #include "cd_ls_pwd.c"
 #include "mkdir_create.c"
+#include "rmdir.c"
 
 int init()
 {
@@ -110,7 +111,7 @@ int main(int argc, char *argv[ ])
   // WRTIE code here to create P1 as a USER process
   
   while(1){
-    printf("input command : [ls|cd|pwd|mkdir|touch|quit] ");
+    printf("input command : [ls|cd|pwd|mkdir|touch|rmdir|quit] ");
     fgets(line, 128, stdin);
     line[strlen(line)-1] = 0;
 
@@ -135,6 +136,8 @@ int main(int argc, char *argv[ ])
 			makedir(pathname);
     else if (strcmp(cmd, "touch")==0)
 			create_file(pathname);
+		else if (strcmp(cmd, "rmdir")==0)
+			rmdir(pathname);
 		else
 			printf("Invalid command \"%s\"", cmd);	
   }
