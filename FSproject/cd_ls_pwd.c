@@ -4,26 +4,34 @@ int chdir(char *pathname)
 {
 	// READ Chapter 11.7.3 HOW TO chdir
 	MINODE *mip;
-	if(pathname[0]<=0){
+	if(pathname[0]<=0)
+	{
 		running->cwd = iget(root->dev, 2);
 		return 0;
 	}
-	if(strcmp(pathname, "/") == 0){
+
+	if(strcmp(pathname, "/") == 0)
+	{
 		printf("CDing to root\n");
 		running->cwd = iget(root->dev, 2);
 		return 0;
 	}
+
 	int ino = getino(pathname);
-	if(ino==0){
+	if(ino==0)
+	{
 		printf("directory doesn't exist\n");
 		return 0;
 	}
+
 	mip = iget(running->cwd->dev, ino);
-	if((mip->INODE.i_mode & 0100000) == 0100000){
+	if((mip->INODE.i_mode & 0100000) == 0100000)
+	{
 		iput(mip);
 		printf("cannot cd to non dir\n");
 		return -1;
 	}
+
 	iput(running->cwd);
 	running->cwd = mip;
 	printf("cwd:[%d %d]\n", running->cwd->dev,running->cwd->ino);
@@ -58,7 +66,15 @@ int ls_file(MINODE *mip, char *name)
 	time[strlen(time)-1]=0;
 	printf(" %3d\t%3d\t%3d\t%20s\t%6d ", ip->i_links_count,  mip->INODE.i_uid, mip->INODE.i_gid, time, mip->INODE.i_size);
 
-	printf("%s\n", name);
+	if(S_ISLNK(mip->INODE.i_mode))
+	{
+		printf("%s -> %s\n", name, mip->INODE.i_block);
+	}
+	else
+	{
+		printf("%s\n", name);
+	}
+	
 }
 
 int ls_dir(MINODE *mip)
@@ -79,7 +95,7 @@ int ls_dir(MINODE *mip)
 
 		file = iget(dev, getino(temp));
 		ls_file(file, temp);
-		iput(file); 
+		iput(file);
 		
 		cp += dp->rec_len;
 		dp = (DIR *)cp;
