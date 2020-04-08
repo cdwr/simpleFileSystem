@@ -1,7 +1,12 @@
 int rmdir(char *pathname){
 	int ino;
-	MINODE *mip;
-	
+	MINODE *mip, *pip;
+
+	if (pathname[0] == '/')
+		dev = root->dev;
+	else
+		dev = running->cwd->dev;
+
 	ino = getino(pathname);
 	mip = iget(dev, ino);
 	
@@ -35,26 +40,26 @@ int rmdir(char *pathname){
 		return -1;
 	}
 	
-	for (i=0; i<12; i++){
+	for (int i=0; i<12; i++){
 		if (mip->INODE.i_block[i]==0)
 			continue;
-    
-    bdealloc(mip->dev, mip->INODE.i_block[i]);
-  }
-  
-  
-  idealloc(mip->dev, mip->ino);
-  iput(mip);
-  
-  pip = iget(mip->dev, findino(mip, NULL));
-  rm_child(pip, pathname);
-  
-  pip->INODE.i_links_count--;
+		
+		bdealloc(mip->dev, mip->INODE.i_block[i]);
+	}
+
+
+	idealloc(mip->dev, mip->ino);
+	iput(mip);
+
+	pip = iget(mip->dev, findino(mip, NULL));
+	rm_child(pip, pathname);
+	
+	pip->INODE.i_links_count--;
 	pip->INODE.i_mtime = time(0L); //might be broken
 	pip->INODE.i_atime = time(0L);
 	pip->dirty = 1;
-  
-  iput(pip);
+	
+	iput(pip);
 	return 0;
 }
 	
@@ -107,14 +112,14 @@ int rm_child(MINODE *pip, char *child)
 		while (cp < &buf[BLKSIZE]) {
 			memcpy(entName, dp->name, dp->name_len);
 			entName[dp->name_len] = 0;
-			if (strcmp(entName, name) == 0) {
+			if (strcmp(entName, child) == 0) {
 				goto FoundChild;
 			}
 			cp += dp->rec_len;
 			dp = (DIR *)cp;
 		}
 	}
-	printf("error: could not find %s in parent directory\n", name);
+	printf("error: could not find %s in parent directory\n", child);
 	return -1;
 	FoundChild:
 	// if last entry in block
