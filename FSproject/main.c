@@ -29,6 +29,7 @@ int nblocks, ninodes, bmap, imap, inode_start; // disk parameters
 #include "cd_ls_pwd.c"
 #include "mkdir_create.c"
 #include "link_unlink.c"
+#include "symlink.c"
 
 int init()
 {
@@ -141,7 +142,7 @@ int main(int argc, char *argv[ ])
 		else if (strcmp(cmd, "link") == 0)
 			link(pathname, secondArg);
 		else if (strcmp(cmd, "symlink") == 0)
-			symlink(pathname, secondArg);
+			mysymlink(pathname, secondArg);
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}

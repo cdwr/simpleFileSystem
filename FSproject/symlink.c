@@ -1,4 +1,4 @@
-int symlink(char *target, char *linkpath)
+int mysymlink(char *target, char *linkpath)
 {
 	int tino, lino;
 	MINODE *tmip, *lmip;
@@ -31,9 +31,10 @@ int symlink(char *target, char *linkpath)
 
 	strcpy(linkpathcpy, linkpath);
 	create_file(linkpath);
+	printf("linkpath=%s\n", linkpath);
 
 	// Get link INODE, MINODE and ip.
-	lino = getino(&dev, linkpathcpy);
+	lino = getino(linkpathcpy);
 	lmip = iget(dev, lino);
 	lip = &lmip->INODE;
 
@@ -46,5 +47,4 @@ int symlink(char *target, char *linkpath)
 	iput(tmip);
 
 	printf("symlink created\n");
-
 }
