@@ -84,3 +84,113 @@ int link(char *oldpath, char *newpath)
 	iput(oldmip);
 	iput(newmip);
 }
+
+int unlink(char *pathname)
+{
+	int ino, pino;
+	MINODE *mip, *pip;
+	INODE *ip;
+	char *parent, *child;
+
+	// Get child name and dirname.
+	child = basename(pathname);
+	parent = dirname(pathname);
+
+	// Check if old path is in different folder.
+	if (parent[0] == '/')
+	{
+		dev = root->dev;
+	}
+	else
+	{
+		dev = running->cwd->dev;
+	}
+	
+	// Get number of parent ino and parent ino itself.
+	pino = getino(parent);
+	pip = iget(dev, pino);
+
+	// Check if node is a directory type.
+	if (!S_ISDIR(pip->INODE.i_mode))
+	{
+		printf("%s must be a directory\n");
+		return -1;
+	}
+
+	// Get child ino number and inode itself.
+	ino = search(pip, child);
+	mip = iget(dev, ino);
+	ip = &mip->INODE;
+
+	// Check if the child we are removing is a link type and not a folder.
+	if (!S_ISREG(ip->i_mode) && !S_ISLNK(ip->i_mode))
+	{
+		printf("%s is an invalid file type\n", pathname);
+		return -1;
+	}
+
+	ip->i_links_count--; // decrease link counts.
+
+	// If there are no links left, we need to remove the fild from the disk.
+	if (ip->i_links_count == 0) 
+	{
+		truncate(mip);
+	}
+
+	// finally remove child.
+	rm_child(pip, child);
+	iput(mip);
+	iput(pip);
+}
+
+
+int truncate(MINODE *mip)
+{
+	INODE *ip;
+	int i;
+	int *bp;
+	ip = &mip->INODE;
+	// direct blocks
+	for(i=0; i<12; i++)
+	{
+		if (ip->i_block[i])
+			continue;
+		bdealloc(mip->dev, ip->i_block[i]);
+	}
+
+	// single indirect blocks
+	if (ip->i_block[12])
+	{
+		bp = remove_bloc_rec(mip, ip, 12);
+	}
+
+	// double indirect blocks
+	if (ip->i_block[13]) {
+		bp = remove_bloc_rec(mip, ip, 13);
+		bp = remove_bloc_rec(mip, ip, bp);
+	}
+
+	// triple indirect blocks
+	if (ip->i_block[14])
+	{
+		bp = remove_bloc_rec(mip, ip, 14);
+		bp = remove_bloc_rec(mip, ip, bp);
+		bp = remove_bloc_rec(mip, ip, bp);
+	}
+}
+
+int remove_bloc_rec(MINODE *mip, INODE *ip, const int block_num)
+{
+	int *block_pointer;
+	int buf[BLKSIZE / sizeof(int)];
+	get_block(mip->dev, ip->i_block[12], (char *)buf);
+	block_pointer = buf;
+	while (block_pointer < &buf[BLKSIZE / sizeof(int)])
+	{
+		if (*block_pointer) bdealloc(mip->dev, *block_pointer);
+			block_pointer++;
+	}
+	bdealloc(mip->dev, ip->i_block[block_num]);
+
+	return block_pointer;
+}
