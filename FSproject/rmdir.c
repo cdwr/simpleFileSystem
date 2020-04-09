@@ -52,7 +52,7 @@ int rmdir(char *pathname){
 	iput(mip);
 
 	pip = iget(mip->dev, findino(mip, NULL));
-	rm_child(pip, pathname);
+	rm_child(pip, basename(pathname));
 	
 	pip->INODE.i_links_count--;
 	pip->INODE.i_mtime = time(0L); //might be broken

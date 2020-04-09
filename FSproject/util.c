@@ -70,7 +70,7 @@ MINODE *iget(int dev, int ino)
 			 mip->INODE = *ip;
 			 return mip;
 		}
-	}   
+	}
 	printf("PANIC: no more free minodes\n");
 	return 0;
 }

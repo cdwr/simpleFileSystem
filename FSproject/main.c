@@ -102,7 +102,7 @@ int main(int argc, char *argv[ ])
 	inode_start = gp->bg_inode_table;
 	printf("bmp=%d imap=%d inode_start = %d\n", bmap, imap, inode_start);
 
-	init();  
+	init();
 	mount_root();
 	printf("root refCount = %d\n", root->refCount);
 
@@ -127,12 +127,13 @@ int main(int argc, char *argv[ ])
 		printf("cmd=%s pathname=%s secondArg=%s\n", cmd, pathname, secondArg);
 	
 		if (strcmp(cmd, "ls")==0)
-		ls(pathname);
+			ls(pathname);
 		else if (strcmp(cmd, "cd")==0)
-		chdir(pathname);
-		else if (strcmp(cmd, "pwd")==0){
-		pwd(running->cwd,0);
-		printf("\n");
+			chdir(pathname);
+		else if (strcmp(cmd, "pwd")==0)
+		{
+			pwd(running->cwd,0);
+			printf("\n");
 		}
 		else if (strcmp(cmd, "quit") == 0)
 			quit();

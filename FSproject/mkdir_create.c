@@ -88,7 +88,7 @@ int makedir(char *name){
 	}
 	
 
-	if(mymkdir(pip, name)){
+	if(mymkdir(pip, child)){
 		pip->INODE.i_links_count++;
 		pip->INODE.i_mtime = time(0L); //might be broken
 		pip->dirty = 1;
@@ -168,18 +168,21 @@ int create_file(char *name){
 	pip = iget(dev, pino);
 	
 	//check its a directory
-	if(!S_ISDIR(pip->INODE.i_mode)){
+	if(!S_ISDIR(pip->INODE.i_mode))
+	{
 		printf("ERROR:pip is not a directory\n");
 		return -1;
 	}
 	
 	// check child doen't exist
-	if(search(pip, name)){
+	if(search(pip, child))
+	{
 		printf("File already exists\n");
 		return -1;
 	}
 	
-	if(my_create_file(pip, name)){
+	if(my_create_file(pip, child))
+	{
 		pip->INODE.i_mtime = time(0L); //might be broken
 		pip->dirty = 1;
 	}

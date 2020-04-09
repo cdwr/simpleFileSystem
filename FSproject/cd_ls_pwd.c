@@ -85,15 +85,14 @@ int ls_dir(MINODE *mip)
 	MINODE *file;
 
 	// Assume DIR has only one data block i_block[0]
-	get_block(dev, mip->INODE.i_block[0], buf); 
+	get_block(mip->dev, mip->INODE.i_block[0], buf); 
 	dp = (DIR *)buf;
 	cp = buf;
 
 	while (cp < buf + BLKSIZE){
 		strncpy(temp, dp->name, dp->name_len);
 		temp[dp->name_len] = 0;
-
-		file = iget(dev, getino(temp));
+		file = iget(mip->dev, getino(temp));
 		ls_file(file, temp);
 		iput(file);
 		
@@ -104,10 +103,10 @@ int ls_dir(MINODE *mip)
 	printf("\n");
 }
 
-int ls(char *pathname)  
+int ls(char *pathname)
 {
 	printf("ls %s\n", pathname);
-	printf("ls CWD only! YOU do it for ANY pathname\n");
+	chdir(pathname);
 	ls_dir(running->cwd);
 }
 
