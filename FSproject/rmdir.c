@@ -101,27 +101,40 @@ int rm_child(MINODE *pip, char *child)
 	char *cp, *cp2, buf[BLKSIZE], entName[64];
 	DIR *dp, *dp2;
 	INODE *ip;
+	int br = 1;
 	ip = &pip->INODE;
 	// search parent INODE data blocks for entry of name
-	for (i=0; i<12; i++) {
+	for (i=0; i<12; i++)
+	{
 		if (ip->i_block[i] == 0)
 			continue;
 		get_block(pip->dev, ip->i_block[i], buf);
 		cp = buf;
 		dp = (DIR *)cp;
-		while (cp < &buf[BLKSIZE]) {
+		while (cp < &buf[BLKSIZE])
+		{
 			memcpy(entName, dp->name, dp->name_len);
 			entName[dp->name_len] = 0;
-			if (strcmp(entName, child) == 0) {
-				goto FoundChild;
+			if (strcmp(entName, child) == 0)
+			{
+				br = 0;
+				break;
 			}
 			cp += dp->rec_len;
 			dp = (DIR *)cp;
 		}
+		if (br == 0)
+		{
+			break;
+		}
 	}
-	printf("error: could not find %s in parent directory\n", child);
-	return -1;
-	FoundChild:
+
+	if (br == 1)
+	{
+		printf("error: could not find %s in parent directory\n", child);
+		return -1;
+	}
+
 	// if last entry in block
 	if (cp + dp->rec_len == &buf[BLKSIZE]) {
 		// if only entry in data block
