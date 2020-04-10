@@ -4,26 +4,24 @@ int chdir(char *pathname)
 {
 	// READ Chapter 11.7.3 HOW TO chdir
 	MINODE *mip;
+	printf("cwd:[%d %d]\n", running->cwd->dev,running->cwd->ino);
 	if(pathname[0]<=0)
 	{
 		running->cwd = iget(root->dev, 2);
 		return 0;
 	}
-
 	if(strcmp(pathname, "/") == 0)
 	{
 		printf("CDing to root\n");
 		running->cwd = iget(root->dev, 2);
 		return 0;
 	}
-
 	int ino = getino(pathname);
 	if(ino==0)
 	{
 		printf("directory doesn't exist\n");
 		return 0;
 	}
-
 	mip = iget(running->cwd->dev, ino);
 	if((mip->INODE.i_mode & 0100000) == 0100000)
 	{
@@ -83,7 +81,7 @@ int ls_dir(MINODE *mip)
 	DIR *dp;
 	char *cp;
 	MINODE *file;
-
+	printf("ls_dir: mip_ino=%d\n", mip->ino);
 	// Assume DIR has only one data block i_block[0]
 	get_block(mip->dev, mip->INODE.i_block[0], buf); 
 	dp = (DIR *)buf;
@@ -105,9 +103,17 @@ int ls_dir(MINODE *mip)
 
 int ls(char *pathname)
 {
-	printf("ls %s\n", pathname);
-	chdir(pathname);
-	ls_dir(running->cwd);
+	if(strcmp(pathname, "\0") != 0){
+		printf("ls %s\n", pathname);
+		chdir(pathname);
+		ls_dir(running->cwd);
+		chdir("..");
+	}
+	else{
+		printf("ls cwd\n");
+		ls_dir(running->cwd);
+	}
+	return 0;
 }
 
 void pwd(MINODE *wd, int child)
