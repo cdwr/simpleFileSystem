@@ -31,6 +31,7 @@ int nblocks, ninodes, bmap, imap, inode_start; // disk parameters
 #include "link_unlink.c"
 #include "symlink.c"
 #include "rmdir.c"
+#include "open_close_lseek.c"
 
 int init()
 {
@@ -115,7 +116,7 @@ int main(int argc, char *argv[ ])
 	// WRTIE code here to create P1 as a USER process
 
 	while(1){
-		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|link|symlink|unlink|quit] ");
+		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|link|symlink|unlink|open|quit] ");
 		fgets(line, 128, stdin);
 		line[strlen(line)-1] = 0;
 
@@ -149,6 +150,8 @@ int main(int argc, char *argv[ ])
 			unlink(pathname);
 		else if (strcmp(cmd, "rmdir") == 0)
 			rmdir(pathname);
+		else if (strcmp(cmd, "open") == 0)
+			open_file(pathname, string_to_int(secondArg));
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}

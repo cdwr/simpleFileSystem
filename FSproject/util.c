@@ -213,6 +213,13 @@ int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 	return dp->inode;
 }
 
+int string_to_int(char *str)
+{
+	int num;
+	sscanf(str, "%d", &num);
+	return num;
+}
+
 int tst_bit(char *buf, int bit){
 	return buf[bit/8] & (1 << (bit % 8));
 }
@@ -362,4 +369,9 @@ int bdealloc(int dev, int bno)
 	incFreeBlocks(dev);
 	put_block(dev, bmap, buf);
 	return 0;
+}
+
+int can_open(char *pathname, int mode)
+{
+	
 }
