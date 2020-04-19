@@ -2,7 +2,7 @@ int open_file(char *pathname, int mode)
 {
 	printf("opening pathname=%s, with mode=%d\n", pathname, mode);
 
-	int ino, i;
+	int ino;
 	MINODE *mip;
 	INODE *ip;
 	OFT *oftp;
@@ -35,4 +35,112 @@ int open_file(char *pathname, int mode)
 		return -1;
 	}
 
+	// Now we need to allocate free OFT.
+	oftp = malloc(sizeof(OFT));
+	oftp->mode = mode;
+	oftp->refCount = 1;
+	oftp->mptr = mip;
+
+	// Depending on the open mode 0|1|2|3, set the OFT's offset accordingly:
+	switch(mode)
+	{
+		case 0 : 
+			oftp->offset = 0;     // R: offset = 0
+			break;
+		case 1 : 
+			truncate(mip);        // W: truncate file to 0 size
+			oftp->offset = 0;
+			break;
+		case 2 : 
+			oftp->offset = 0;     // RW: do NOT truncate file
+			break;
+		case 3 : 
+			oftp->offset =  mip->INODE.i_size;  // APPEND mode
+			break;
+		default: 
+			printf("invalid mode\n");
+			return(-1);
+	}
+	int i;
+	for (i = 0; i < NFD; i++)
+	{
+		if (running->fd[i] == NULL)
+			break;
+	}
+	if (running->fd[i] != NULL) {
+		printf("too many open instances of %s\n", pathname);
+	}
+	running->fd[i] = oftp;
+	mip->INODE.i_atime = mode ? mip->INODE.i_mtime = time(0L) : time(0L);
+	mip->dirty = 1;
+	printf("File=%s is now open with mode=%s\n", pathname, mode_to_string(mode));
+	return i;
+}
+
+int close_file(int fd)
+{
+	OFT *oftp;
+	// Check if given descript is within range.
+	if (fd < 0 || fd >= NFD)
+	{
+		printf("Error, file descript %d is not in range\n", fd);
+	}
+
+	// Check if OFT entry exist in running.
+	if (running->fd[fd] == NULL)
+	{
+		printf("Error, no such OFT entry\n");
+		return -1;
+	}
+
+	// close.
+	oftp = running->fd[fd];
+	running->fd[fd] = 0;
+	oftp->refCount--;
+	if (oftp->refCount > 0)
+	{
+		return 0;
+	}
+
+	// dispose of MINODE
+	iput(oftp->mptr);
+	printf("fd=%d, mode=%s, INODE=%d is now closed\n", fd, mode_to_string(oftp->mode), oftp->mptr->ino);
+	return 0;
+}
+
+int lseek_file(int fd, int position)
+{
+	OFT *oftp;
+	int original; // original position
+
+	// Check if given descript is within range.
+	if (fd < 0 || fd >= NFD)
+	{
+		printf("Error, file descript %d is not in range\n", fd);
+	}
+
+	// Check if OFT entry exist in running.
+	if (running->fd[fd] == NULL)
+	{
+		printf("Error, no such OFT entry\n");
+		return -1;
+	}
+
+	oftp = running->fd[fd];
+	original = oftp->offset;
+
+	if (position < 0)
+	{
+		oftp->offset = 0;
+	}
+	else if (position >= oftp->mptr->INODE.i_size)
+	{
+		oftp->offset = oftp->mptr->INODE.i_size - 1;
+	}
+	else
+	{
+		oftp->offset = position;
+	}
+
+	return original;
 }

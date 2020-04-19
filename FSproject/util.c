@@ -371,7 +371,195 @@ int bdealloc(int dev, int bno)
 	return 0;
 }
 
+int read_link(char *pathname, char *link)
+{
+	int ino;
+	MINODE *mip;
+	INODE *ip;
+	// get pathname's inumber:
+	if (pathname[0] == '/')
+	{
+		dev = root->dev;
+	}
+	else
+	{
+		dev = running->cwd->dev;
+	}
+
+	// get parent's MINODE
+	mip = iget(dev, ino);
+	if (!S_ISLNK(mip->INODE.i_mode)) {
+		printf("Error, file %s is not a symbolic link\n", pathname);
+		iput(mip);
+		return -1;
+	}
+	strcpy(link, (char *)mip->INODE.i_block);
+	return 0;
+}
+
+
 int can_open(char *pathname, int mode)
 {
+	int ino, bitmask;
+	MINODE *mip;
+	char name_of_link[64];
+
+	// get pathname's inumber:
+	if (pathname[0] == '/')
+	{
+		dev = root->dev;
+	}
+	else
+	{
+		dev = running->cwd->dev;
+	}
+
+	// Get ino.
+	ino = getino(pathname);
+	if (ino == 0)
+	{
+		printf("Error, invalid path inode for path=%s\n", pathname);
+		return -1;
+	}
+
+	// get parent MINODE
+	mip = iget(dev, ino);
+
+	// Check if files is a symlink, then this is a special case.
+	// Then we need to get ino of linked file.
+	if (S_ISLNK(mip->INODE.i_mode))
+	{
+		read_link(pathname, name_of_link);
+		iput(mip);
+		// get pathname's inumber:
+		if (pathname[0] == '/')
+		{
+			dev = root->dev;
+		}
+		else
+		{
+			dev = running->cwd->dev;
+		}
+		// Get ino of symlinked file
+		ino = getino(name_of_link);
+		// get parent MINODE of linked file
+		mip = iget(dev, ino);
+	}
+
+	iput(mip);
+
+	// Depending on the open mode 0|1|2|3, check for OFT's offset.
+	switch(mode)
+	{
+		case 0:
+			bitmask = 0b100;
+			break;
+		case 1:
+			bitmask = 0b010;
+			break;
+		case 2:
+			bitmask = 0b110;
+			break;
+		case 3:
+			bitmask = 0b010;
+			break;
+		default:
+			printf("Error, mode %d is not supported\n", mode);
+			return 0;
+	}
+
+
+	if ((running->uid != 0) && (bitmask != (bitmask & mip->INODE.i_mode)))
+	{
+		return 0;
+	}
+
+	// shift to the right by 3
+	bitmask <<= 3;
+
+	if((running->gid != mip->INODE.i_gid) && (bitmask != (bitmask & mip->INODE.i_mode)))
+	{
+		return 0;
+	}
 	
+	// shift to the right by 3
+	bitmask <<= 3;
+
+	if((running->uid != mip->INODE.i_uid) && (bitmask != (bitmask & mip->INODE.i_mode)))
+	{
+		return 0;
+	}
+
+
+	// Check whether the file is ALREADY opened with INCOMPATIBLE mode:
+	// If it's already opened for W, RW, APPEND : reject.
+	// (that is, only multiple R are OK)
+
+	for (int i = 0; i < NFD; i++)
+	{
+		if (running->fd[i] == NULL)
+		{
+			continue;
+		}
+		if (running->fd[i]->mptr == mip) {
+			if (running->fd[i]->mode || mode) {
+				printf("%s cannot be opened, as due to incompatible mode\n", pathname);
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+// Print all OFT's
+int pfd()
+{
+	OFT *oftp;
+	// FD, Mode, offset, INODE.
+	printf("fd\tmode\toffset\tINODE\n");
+	printf("--\t----\t------\t-----\n");
+	for (int i = 0; i < NFD; i++)
+	{
+		if ((oftp = running->fd[i]) == NULL)
+		{
+			continue;
+		}
+
+		printf("%d\t", i);
+		switch (oftp->mode)
+		{
+			case 0:
+				printf("READ\t"); 
+				break;
+			case 1:
+				printf("WRITE\t");
+				break;
+			case 2:
+				printf("R/W\t"); 
+				break;
+			case 3: 
+				printf("APPEND\t");
+				break;
+		}
+		printf("%d\t", oftp->offset);
+		printf("[%d,%d]\n", oftp->mptr->dev, oftp->mptr->ino);
+	}
+}
+
+// Returns string representation of mode.
+char* mode_to_string(int mode)
+{
+	switch (mode)
+	{
+		case 0:
+			return "READ";
+		case 1:
+			return "WRITE";
+		case 2:
+			return "READ/WRITE";
+		case 3: 
+			return "APPEND";
+		default:
+			return "ERROR, NOT VALID MODE!";
+	}
 }

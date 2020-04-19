@@ -116,7 +116,7 @@ int main(int argc, char *argv[ ])
 	// WRTIE code here to create P1 as a USER process
 
 	while(1){
-		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|link|symlink|unlink|open|quit] ");
+		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|link|symlink|unlink|open|close|pfd|lseek|quit] ");
 		fgets(line, 128, stdin);
 		line[strlen(line)-1] = 0;
 
@@ -152,6 +152,12 @@ int main(int argc, char *argv[ ])
 			rmdir(pathname);
 		else if (strcmp(cmd, "open") == 0)
 			open_file(pathname, string_to_int(secondArg));
+		else if (strcmp(cmd, "close") == 0)
+			close_file(string_to_int(pathname));
+		else if (strcmp(cmd, "pfd") == 0)
+			pfd();
+		else if (strcmp(cmd, "lseek") == 0)
+			printf("Original Position=%d\n", lseek_file(string_to_int(pathname), string_to_int(secondArg)));
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}
