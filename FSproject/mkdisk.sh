@@ -1,0 +1,1 @@
+mke2fs diskimage 1440
