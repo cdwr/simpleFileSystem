@@ -117,7 +117,7 @@ int main(int argc, char *argv[ ])
 	// WRTIE code here to create P1 as a USER process
 
 	while(1){
-		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|link|symlink|unlink|open|close|pfd|lseek|cat|cp|quit] ");
+		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|rmfile|link|symlink|unlink|open|close|pfd|lseek|cat|cp|write|quit] ");
 		fgets(line, 128, stdin);
 		line[strlen(line)-1] = 0;
 
@@ -147,7 +147,7 @@ int main(int argc, char *argv[ ])
 			link(pathname, secondArg);
 		else if (strcmp(cmd, "symlink") == 0)
 			mysymlink(pathname, secondArg);
-		else if (strcmp(cmd, "unlink") == 0)
+		else if ((strcmp(cmd, "unlink") == 0) || (strcmp(cmd, "rmfile") == 0)) // unlink can be used to remove files. Since files are just hard links
 			unlink(pathname);
 		else if (strcmp(cmd, "rmdir") == 0)
 			rmdir(pathname);
@@ -163,6 +163,8 @@ int main(int argc, char *argv[ ])
 			cat(pathname);
 		else if (strcmp(cmd, "cp") == 0)
 			cp(pathname, secondArg);
+		else if (strcmp(cmd, "write") == 0)
+			write_to_file(pathname, secondArg);
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}

@@ -13,9 +13,9 @@ GD    *gp;
 INODE *ip;
 DIR   *dp;   
 
-#define SUPERBLOCK 1
-#define GDBLOCK 2
-#define ROOT_INODE 2
+#define SUPERBLOCK  1
+#define GDBLOCK     2
+#define ROOT_INODE  2
 
 #define FREE        0
 #define READY       1
@@ -25,6 +25,11 @@ DIR   *dp;
 #define NMTABLE		 10 //added, not used
 #define NFD        16
 #define NPROC       2
+
+#define READ        0
+#define WRITE       1
+#define READWRITE   2
+#define APPEND      3
 
 typedef struct minode{
   INODE INODE;

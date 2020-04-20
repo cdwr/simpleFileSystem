@@ -551,13 +551,13 @@ char* mode_to_string(int mode)
 {
 	switch (mode)
 	{
-		case 0:
+		case READ:
 			return "READ";
-		case 1:
+		case WRITE:
 			return "WRITE";
-		case 2:
+		case READWRITE:
 			return "READ/WRITE";
-		case 3: 
+		case APPEND: 
 			return "APPEND";
 		default:
 			return "ERROR, NOT VALID MODE!";
