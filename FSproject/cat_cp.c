@@ -80,10 +80,13 @@ int cat(char *filename)
 	char buf[BLKSIZE];
 	int n;
 	int fd = open_file(filename, 0);
+	printf("Content of file %s:\n", filename);
 	while (n = read_file(fd, buf, BLKSIZE)) {
 		buf[n] = 0;
 		printf("%s", buf);
 	}
+
+	printf("\n");
 	close_file(fd);
 }
 
@@ -209,10 +212,11 @@ int cp(char *src, char *dest)
 	int fd, gd, n;
 	char cbuf[BLKSIZE];
 	fd = open_file(src, READ);
-	create_file(dest); //hmmmmmm mMm?
+	create_file(dest);
 	gd = open_file(dest, READWRITE);
 	while (n = read_file(fd, cbuf, BLKSIZE))
 	{
+		printf("buf=%s\n n=%d", cbuf, n);
 		write_file(gd, cbuf, n);
 	}
 

@@ -187,7 +187,7 @@ int create_file(char *name)
 		iput(pip);
 		return -1;
 	}
-	
+
 	my_create_file(pip, child);
 	pip->INODE.i_mtime = time(0L);
 	pip->dirty = 1;
