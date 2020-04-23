@@ -298,13 +298,15 @@ int decFreeBlocks(int dev){
 	put_block(dev, GDBLOCK, buf);
 }
 
-int ialloc(int dev){
-	int i;
+int ialloc(int dev)
+{
 	char buf[BLKSIZE];
 	
 	get_block(dev, imap, buf);
-	for(i=0; i<ninodes; i++){
-		if(tst_bit(buf, i)==0){
+	for(int i = 0; i < ninodes; i++)
+	{
+		if(tst_bit(buf, i) == 0)
+		{
 			set_bit(buf, i);
 			decFreeInodes(dev); //not in sample, but is in book??
 			put_block(dev, imap, buf);
@@ -318,17 +320,16 @@ int ialloc(int dev){
 
 int balloc(int dev)
 {
-	int  b;
 	char buf[BLKSIZE];
 
 	// read inode_bitmap block
 	get_block(dev, bmap, buf);
 
-	for (b=0; b < ninodes; b++)
+	for (int b = 0; b < nblocks; b++)
 	{
-		if (tst_bit(buf, b)==0)
+		if (tst_bit(buf, b) == 0)
 		{
-			set_bit(buf,b);
+			set_bit(buf, b);
 			decFreeBlocks(dev);
 
 			put_block(dev, bmap, buf);

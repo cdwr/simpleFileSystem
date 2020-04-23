@@ -61,17 +61,29 @@ int open_file(char *pathname, int mode)
 			printf("invalid mode\n");
 			return(-1);
 	}
+
 	int i;
 	for (i = 0; i < NFD; i++)
 	{
 		if (running->fd[i] == NULL)
 			break;
 	}
+
 	if (running->fd[i] != NULL) {
 		printf("too many open instances of %s\n", pathname);
 	}
+
 	running->fd[i] = oftp;
-	mip->INODE.i_atime = mode ? mip->INODE.i_mtime = time(0L) : time(0L);
+	if (mode == READ)
+	{
+		mip->INODE.i_atime = mode;
+	}
+
+	if (mip->INODE.i_mtime > READ)
+	{
+		mip->INODE.i_mtime = time(0L);
+	}
+
 	mip->dirty = 1;
 	printf("File=%s is now open with mode=%s\n", pathname, mode_to_string(mode));
 	return i;
@@ -143,4 +155,64 @@ int lseek_file(int fd, int position)
 	}
 
 	return original;
+}
+
+// Duplicate given file descriptor
+int dup(int fd)
+{
+	OFT *oftp;
+	int i;
+	if (fd < 0 || fd >= NFD)
+	{
+		printf("Error, file descriptor %d not in range\n", fd);
+	}
+
+	if (running->fd[fd] == NULL)
+	{
+		printf("Erro, OFT entry does not exist\n");
+		return -1;
+	}
+
+	oftp = running->fd[fd];
+	for (i=0; i<NFD; i++)
+	{
+		if (running->fd[i] == NULL)
+		{
+			running->fd[i] = oftp;
+			oftp->refCount++;
+			return i;
+		}
+	}
+
+	printf("Error, file is open multiple times!\n");
+	return -1;	
+}
+
+// Duplicate given file descriptor into another given
+int dup2(int fd, int gd)
+{
+	OFT *oftp;
+	int i;
+	if (fd < 0 || fd >= NFD)
+	{
+		printf("Error, file descriptor %d not in range\n", fd);
+	}
+
+	if (running->fd[fd] == NULL)
+	{
+		printf("Erro, OFT entry does not exist\n");
+		return -1;
+	}
+
+	oftp = running->fd[fd];
+	if (gd < 0 || gd >= NFD) {
+		printf("FD copy not in range\n");
+		return -1;
+	}
+
+	if (running->fd[gd] != NULL)
+		close_file(gd);
+	running->fd[gd] = oftp;
+	oftp->refCount++;
+	return 0;
 }

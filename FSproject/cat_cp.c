@@ -38,15 +38,19 @@ int read_file(int fd, char *buf, int nbytes)
 	
 		lbk = oftp->offset / BLKSIZE;
 		start = oftp->offset % BLKSIZE;
+
+		// Deal with direct blockes
 		if (lbk < 12)
 		{
 			blk = ip->i_block[lbk];
 		}
+		// Single indirect blocks
 		else if (lbk >= 12 && lbk < 256 + 12)
 		{
 			get_block(mip->dev, ip->i_block[12], (char *)bbuf);
 			blk = bbuf[lbk - 12];
 		}
+		// Double indirect blocks
 		else
 		{
 			lbk -= 256 + 12;
@@ -91,7 +95,8 @@ int cat(char *filename)
 }
 
 
-int write_file(int fd, char *buf, int nbytes){
+int write_file(int fd, char *buf, int nbytes)
+{
 	OFT *oftp;
 	MINODE *mip;
 	INODE *ip;
