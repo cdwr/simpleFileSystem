@@ -148,49 +148,97 @@ int truncate(MINODE *mip)
 {
 	INODE *ip;
 	int i;
-	int *bp;
+	int buf1[BLKSIZE / sizeof(int)], buf2[BLKSIZE / sizeof(int)], buf3[BLKSIZE / sizeof(int)];
+	int *block_pointer1, *block_pointer2, *block_pointer3;
 	ip = &mip->INODE;
-	// direct blocks
+
+	// deal with direct blocks
 	for(i=0; i<12; i++)
 	{
 		if (ip->i_block[i])
+		{
 			continue;
+		}
+
 		bdealloc(mip->dev, ip->i_block[i]);
 	}
 
-	// single indirect blocks
-	if (ip->i_block[12])
-	{
-		bp = remove_bloc_rec(mip, ip, 12);
+	// deal with single indirect blocks
+	if (ip->i_block[12]) {
+		get_block(mip->dev, ip->i_block[12], (char *)buf1);
+		block_pointer1 = buf1;
+		while (block_pointer1 < &buf1[BLKSIZE / sizeof(int)])
+		{
+			if (*block_pointer1) bdealloc(mip->dev, *block_pointer1);
+			{
+				block_pointer1++;
+			}
+		}
+		bdealloc(mip->dev, ip->i_block[12]);
 	}
-
-	// double indirect blocks
+	// deal with double indirect blocks
 	if (ip->i_block[13]) {
-		bp = remove_bloc_rec(mip, ip, 13);
-		bp = remove_bloc_rec(mip, ip, bp);
-	}
+		get_block(mip->dev, ip->i_block[13], (char *)buf1);
+		block_pointer1 = buf1;
+		while (block_pointer1 < &buf1[BLKSIZE / sizeof(int)])
+		{
+			if (*block_pointer1)
+			{
+				get_block(mip->dev, *block_pointer1, (char *)buf2);
+				block_pointer2 = buf2;
+				while (block_pointer2 < &buf2[BLKSIZE / sizeof(int)])
+				{
+					if (*block_pointer2) bdealloc(mip->dev, *block_pointer2);
+					{
+						block_pointer2++;
+					}
+				}
 
-	// triple indirect blocks
+				bdealloc(mip->dev, *block_pointer1);
+			}
+
+			block_pointer1++;
+		}
+
+		bdealloc(mip->dev, ip->i_block[13]);
+	}
+	// deal with triple indirect blocks
 	if (ip->i_block[14])
 	{
-		bp = remove_bloc_rec(mip, ip, 14);
-		bp = remove_bloc_rec(mip, ip, bp);
-		bp = remove_bloc_rec(mip, ip, bp);
-	}
-}
+		get_block(mip->dev, ip->i_block[14], (char *)buf1);
+		block_pointer1 = buf1;
+		while (block_pointer1 < &buf1[BLKSIZE / sizeof(int)])
+		{
+			if (*block_pointer1)
+			{
+				get_block(mip->dev, *block_pointer1, (char *)buf2);
+				block_pointer2 = buf2;
+				while (block_pointer2 < &buf2[BLKSIZE / sizeof(int)])
+				{
+					if (*block_pointer2)
+					{
+						get_block(mip->dev, *block_pointer2, (char *)buf3);
+						block_pointer3 = buf3;
+						while (block_pointer3 < &buf3[BLKSIZE / sizeof(int)])
+						{
+							if (*block_pointer3) bdealloc(mip->dev, *block_pointer3);
+							{
+								block_pointer3++;
+							}
+						}
 
-int remove_bloc_rec(MINODE *mip, INODE *ip, const int block_num)
-{
-	int *block_pointer;
-	int buf[BLKSIZE / sizeof(int)];
-	get_block(mip->dev, ip->i_block[12], (char *)buf);
-	block_pointer = buf;
-	while (block_pointer < &buf[BLKSIZE / sizeof(int)])
-	{
-		if (*block_pointer) bdealloc(mip->dev, *block_pointer);
-			block_pointer++;
-	}
-	bdealloc(mip->dev, ip->i_block[block_num]);
+						bdealloc(mip->dev, *block_pointer2);
+					}
 
-	return block_pointer;
+					block_pointer2++;
+				}
+
+				bdealloc(mip->dev, *block_pointer1);
+			}
+
+			block_pointer1++;
+		}
+
+		bdealloc(mip->dev, ip->i_block[14]);
+	}
 }
