@@ -324,7 +324,7 @@ int balloc(int dev)
 	// read inode_bitmap block
 	get_block(dev, bmap, buf);
 
-	for (b=0; b < ninodes; b++)
+	for (b=0; b < nblocks; b++)
 	{
 		if (tst_bit(buf, b)==0)
 		{
