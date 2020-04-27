@@ -120,27 +120,35 @@ int main(int argc, char *argv[ ])
 		printf("magic = %x is not an ext2 filesystem\n", sp->s_magic);
 		exit(1);
 	}
-	init();
-	mount_root();
 
-	MTABLE *mt = &root->mptr;
 	printf("EXT2 FS OK\n");
-	mt->ninodes = ninodes = sp->s_inodes_count;
-	mt->nblocks = nblocks = sp->s_blocks_count;
+	ninodes = sp->s_inodes_count;
+	nblocks = sp->s_blocks_count;
 
 	get_block(dev, 2, buf); 
 	gp = (GD *)buf;
 
-	mt->bmap = bmap = gp->bg_block_bitmap;
-	mt->imap = imap = gp->bg_inode_bitmap;
-	mt->inode_start = inode_start = gp->bg_inode_table;
+	bmap = gp->bg_block_bitmap;
+	imap = gp->bg_inode_bitmap;
+	inode_start = gp->bg_inode_table;
 	printf("bmp=%d imap=%d inode_start = %d\n", bmap, imap, inode_start);
 	
+	init();
+	mount_root();
+
+	// Copy stuff from root MINODE to table.
+	MTABLE *mt = &root->mptr;
 	strcpy(mt->devname, disk);
 	strcpy(mt->mntName, "/");
 	mt->dev = dev;
 	mt->mntDirPtr = root;
 	mtable[0] = *mt;
+	mt->ninodes = ninodes;
+	mt->nblocks = nblocks;
+	mt->bmap = bmap;
+	mt->imap = imap;
+	mt->inode_start;
+
 	printf("root refCount = %d\n", root->refCount);
 
 	printf("creating P0 as running process\n");
