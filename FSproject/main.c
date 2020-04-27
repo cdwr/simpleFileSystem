@@ -14,6 +14,7 @@
 
 // global variables
 MINODE minode[NMINODE];
+MTABLE mtable[NMTABLE];
 MINODE *root;
 
 PROC   proc[NPROC], *running;
@@ -24,7 +25,7 @@ int   n;         // number of component strings
 
 int fd, dev;
 int nblocks, ninodes, bmap, imap, inode_start; // disk parameters
-char disk[128] = "diskimage";
+char disk[128] = "mydisk";
 
 #include "util.c"
 #include "cd_ls_pwd.c"
@@ -34,16 +35,17 @@ char disk[128] = "diskimage";
 #include "rmdir.c"
 #include "open_close_lseek.c"
 #include "cat_cp.c"
+#include "mount_umount.c"
 
 int init()
 {
-	int i, j;
 	MINODE *mip;
+	MTABLE *mt;
 	PROC   *p;
 
 	printf("init()\n");
 
-	for (i=0; i<NMINODE; i++)
+	for (int i = 0; i < NMINODE; i++)
 	{
 		mip = &minode[i];
 		mip->dev = mip->ino = 0;
@@ -51,14 +53,29 @@ int init()
 		mip->mounted = 0;
 		mip->mptr = 0;
 	}
-	for (i=0; i<NPROC; i++){
+	for (int i = 0; i < NPROC; i++)
+	{
 		p = &proc[i];
 		p->pid = i;
 		p->uid = p->gid = 0;
 		p->cwd = 0;
 		p->status = FREE;
-		for (j=0; j<NFD; j++)
+		for (int j = 0; j < NFD; j++)
 			p->fd[j] = 0;
+	}
+
+	for (int i = 0; i < NMTABLE; i++)
+	{
+		mt = &minode[i];
+		mt->dev = FREE;
+		strcpy(mt->devname, "");
+		strcpy(mt->mntName, "");
+		mt->bmap = 0;
+		mt->imap = 0;
+		mt->nblocks = 0;
+		mt->ninodes = 0;
+		mt->iblock = 0;
+		mt->inode_start = 0;
 	}
 }
 
@@ -76,12 +93,18 @@ int main(int argc, char *argv[ ])
 	char line[128], cmd[32], pathname[128], secondArg[128];
 
 	printf("Which disk should we mount? mydisk is the default. \n");
-	printf("enter disk image name:");
+	printf("enter disk image name or hit ENTER to mount mydisk:");
 	fgets(disk, 128, stdin);
 	disk[strlen(disk)-1] = 0;
+	if (strcmp(disk, "") == 0)
+	{
+		strcpy(disk, "mydisk");
+	}
+	printf("diskimage=%s\n", disk);
 
 	printf("checking EXT2 FS ....");
-	if ((fd = open(disk, O_RDWR)) < 0){
+	if ((fd = open(disk, O_RDWR)) < 0)
+	{
 		printf("open %s failed\n", disk);
 		exit(1);
 	}
@@ -92,25 +115,32 @@ int main(int argc, char *argv[ ])
 	sp = (SUPER *)buf;
 
 	/* verify it's an ext2 file system ***********/
-	if (sp->s_magic != 0xEF53){
+	if (sp->s_magic != 0xEF53)
+	{
 		printf("magic = %x is not an ext2 filesystem\n", sp->s_magic);
 		exit(1);
 	}
+	init();
+	mount_root();
 
+	MTABLE *mt = &root->mptr;
 	printf("EXT2 FS OK\n");
-	ninodes = sp->s_inodes_count;
-	nblocks = sp->s_blocks_count;
+	mt->ninodes = ninodes = sp->s_inodes_count;
+	mt->nblocks = nblocks = sp->s_blocks_count;
 
 	get_block(dev, 2, buf); 
 	gp = (GD *)buf;
 
-	bmap = gp->bg_block_bitmap;
-	imap = gp->bg_inode_bitmap;
-	inode_start = gp->bg_inode_table;
+	mt->bmap = bmap = gp->bg_block_bitmap;
+	mt->imap = imap = gp->bg_inode_bitmap;
+	mt->inode_start = inode_start = gp->bg_inode_table;
 	printf("bmp=%d imap=%d inode_start = %d\n", bmap, imap, inode_start);
-
-	init();
-	mount_root();
+	
+	strcpy(mt->devname, disk);
+	strcpy(mt->mntName, "/");
+	mt->dev = dev;
+	mt->mntDirPtr = root;
+	mtable[0] = *mt;
 	printf("root refCount = %d\n", root->refCount);
 
 	printf("creating P0 as running process\n");
@@ -121,8 +151,9 @@ int main(int argc, char *argv[ ])
 
 	// WRTIE code here to create P1 as a USER process
 
-	while(1){
-		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|rmfile|link|symlink|unlink|open|close|pfd|lseek|cat|cp|dup|dup2|write|quit] ");
+	while(1)
+	{
+		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|rmfile|link|symlink|unlink|open|close|pfd|lseek|cat|cp|dup|dup2|write|mount|quit] ");
 		fgets(line, 128, stdin);
 		line[strlen(line)-1] = 0;
 
@@ -174,6 +205,8 @@ int main(int argc, char *argv[ ])
 			dup2(string_to_int(pathname), string_to_int(secondArg));
 		else if (strcmp(cmd, "write") == 0)
 			write_to_file(pathname, secondArg);
+		else if (strcmp(cmd, "mount") == 0)
+			mount(pathname, secondArg);
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}
@@ -183,7 +216,8 @@ int quit()
 {
 	int i;
 	MINODE *mip;
-	for (i=0; i<NMINODE; i++){
+	for (i=0; i<NMINODE; i++)
+	{
 		mip = &minode[i];
 		if (mip->refCount > 0)
 		iput(mip);
