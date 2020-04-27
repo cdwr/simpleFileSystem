@@ -24,6 +24,7 @@ int   n;         // number of component strings
 
 int fd, dev;
 int nblocks, ninodes, bmap, imap, inode_start; // disk parameters
+char disk[128] = "diskimage";
 
 #include "util.c"
 #include "cd_ls_pwd.c"
@@ -68,13 +69,17 @@ int mount_root()
 	root = iget(dev, 2);
 }
 
-char *disk = "diskimage";
 int main(int argc, char *argv[ ])
 {
 	int ino;
 	char buf[BLKSIZE];
 	char line[128], cmd[32], pathname[128], secondArg[128];
-	
+
+	printf("Which disk should we mount? mydisk is the default. \n");
+	printf("enter disk image name:");
+	fgets(disk, 128, stdin);
+	disk[strlen(disk)-1] = 0;
+
 	printf("checking EXT2 FS ....");
 	if ((fd = open(disk, O_RDWR)) < 0){
 		printf("open %s failed\n", disk);

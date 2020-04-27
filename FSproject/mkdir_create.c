@@ -58,7 +58,6 @@ int enter_name(MINODE *pip, int myino, char *myname)
 	return -1;
 }
 
-
 int makedir(char *name)
 {
 	MINODE *mip, *pip;
@@ -177,6 +176,7 @@ int create_file(char *name)
 	if(!S_ISDIR(pip->INODE.i_mode))
 	{
 		printf("ERROR:pip is not a directory\n");
+		iput(pip);
 		return -1;
 	}
 	
@@ -212,9 +212,8 @@ int my_create_file(MINODE *pip, char *name){
 	ip->i_links_count = 1;
 	ip->i_size = 0;										// Size in bytes 
 	ip->i_atime = ip->i_ctime = ip->i_mtime = time(0L);	// set to current time
-	ip->i_blocks = 0;									// LINUX: Blocks count in 512-byte chunks 
-	ip->i_block[0] = 0;
-	for(int i = 1; i < 15; i++)
+	ip->i_blocks = 0;									// LINUX: Blocks count in 512-byte chunks
+	for(int i = 0; i < 15; i++)
 	{
 		ip->i_block[i] = 0;
 	}

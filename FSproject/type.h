@@ -48,7 +48,7 @@ typedef struct oft{
 }OFT;
 
 typedef struct mtable{
-	int dev;
+	int dev; // device number
 	int ninodes;
 	int nblocks;
 	int free_blocks;
@@ -56,9 +56,9 @@ typedef struct mtable{
 	int bmap;
 	int imap;
 	int iblock;
-	MINODE *mntDirPtr;
+	MINODE *mntDirPtr; // pointer to mount point MINODE
 	char devname[64];
-	char mntName[64];
+	char mntName[64]; // device name
 }MTABLE;
 
 typedef struct proc{
