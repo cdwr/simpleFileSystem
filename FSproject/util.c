@@ -133,11 +133,13 @@ int search(MINODE *mip, char *name)
 
 int getino(char *pathname)
 {
-	int i, ino, blk, disp;
+	int i, ino, blk, disp, pino;
 	char buf[BLKSIZE];
 	INODE *ip;
 	MINODE *mip;
 	MINODE *newmip;
+	MTABLE *mt;
+	char *parent = dirname(pathname);
 
 	//printf("getino: pathname=%s\n", pathname);
 	if (strcmp(pathname, "/")==0)
@@ -158,12 +160,33 @@ int getino(char *pathname)
 		if ((strcmp(name[i], "..") == 0) && (mip->dev != root->dev) && (mip->ino == 2))
 		{
 			printf("UP cross mounting point\n");
+
+			// Get mountpoint MINODE
+			for (int i = 0; i < NMINODE; i++)
+			{ 
+				MINODE *node = &minode[i];
+				if (node->dev == dev)
+				{
+					newmip = node;
+					break;
+				}
+			}
+
+			iput(mip);
+			pino = getino(parent);
+			mip = iget(dev, pino);
+
+			dev = newmip->dev;
+			continue;
 			
 		}
 		//printf("===========================================\n");
 		//printf("getino: i=%d name[%d]=%s\n", i, i, name[i]);
 
 		ino = search(mip, name[i]);
+		newmip = iget(dev, ino);
+		iput(mip);
+		mip = newmip;
 
 		if (ino==0)
 		{
@@ -171,12 +194,25 @@ int getino(char *pathname)
 			//printf("name %s does not exist\n", name[i]);
 			return 0;
 		}
+
+		if (mip->mounted)
+		{
+			printf("DOWN cross mounting point\n");
+
+			mt = mip->mptr;
+
+			iput(mip); // discard current mip
+
+			dev = mt->dev;
+			mip = iget(dev, 2);
+		}
+
 		iput(mip);                // release current mip
 		mip = iget(dev, ino);     // get next mip
 	 }
 
 	iput(mip);                   // release mip  
-	return ino;
+	return mip->ino;
 }
 
 int findmyname(MINODE *parent, u32 myino, char *myname) 

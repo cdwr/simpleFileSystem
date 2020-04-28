@@ -22,7 +22,7 @@ int chdir(char *pathname)
 		printf("directory doesn't exist\n");
 		return 0;
 	}
-	mip = iget(running->cwd->dev, ino);
+	mip = iget(dev, ino);
 	if((mip->INODE.i_mode & 0100000) == 0100000)
 	{
 		iput(mip);
@@ -32,7 +32,7 @@ int chdir(char *pathname)
 
 	iput(running->cwd);
 	running->cwd = mip;
-	printf("cwd:[%d %d]\n", running->cwd->dev,running->cwd->ino);
+	printf("cwd:[%d %d]\n", running->cwd->dev, running->cwd->ino);
 	return 0;
 }
 
@@ -123,7 +123,8 @@ void pwd(MINODE *wd, int child)
 	char *cpy;
 	char name[64];
 	
-	if (wd->ino == root->ino){
+	if (wd->ino == root->ino)
+	{
 		printf("/");
 		return;
 	}

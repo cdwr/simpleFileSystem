@@ -102,6 +102,7 @@ int mount(char *devname, char *mountname)
 		mip->mptr = mt;
 		mt->mntDirPtr = mip;
 		mip->mounted = 1;
+		printf("cwd:[%d %d]\n", mt->dev, ino);
 	}
 }
 
