@@ -142,12 +142,12 @@ int main(int argc, char *argv[ ])
 	strcpy(mt->mntName, "/");
 	mt->dev = dev;
 	mt->mntDirPtr = root;
-	mtable[0] = *mt;
 	mt->ninodes = ninodes;
 	mt->nblocks = nblocks;
 	mt->bmap = bmap;
 	mt->imap = imap;
 	mt->inode_start;
+	mtable[0] = *mt;
 
 	printf("root refCount = %d\n", root->refCount);
 

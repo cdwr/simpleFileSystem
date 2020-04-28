@@ -139,15 +139,22 @@ int umount(char *filesys)
 	{ 
 		MINODE *node = &minode[i];
 		//I'm pretty sure this is how to search for it, the minode ray contains all open references, right?
-		if (node->dev == table->dev)
+		if (node->dev == table->dev && node->refCount > 0)
 		{
-			printf("Filesys is busy\n");
-			return -1;
+			if (node == table->mntDirPtr && node->refCount > 1)
+			{
+				printf("Filesys is busy\n");
+				return -1;
+			}
 		}
 	}
 	//should we be marking mounted in iget?
 	table->mntDirPtr->mounted = 0;
 
 	iput(table->mntDirPtr);
+	table->dev = 0;
+	dev = root->dev;
+
+	printf("%s was unmounted\n", filesys);
 	return 0;
 }
