@@ -43,32 +43,34 @@ MINODE *iget(int dev, int ino)
 
 	for (i=0; i<NMINODE; i++){
 		mip = &minode[i];
-		if (mip->dev == dev && mip->ino == ino){
-			 mip->refCount++;
-			 //printf("found [%d %d] as minode[%d] in core\n", dev, ino, i);
-			 return mip;
+		if (mip->dev == dev && mip->ino == ino)
+		{
+			mip->refCount++;
+			//printf("found [%d %d] as minode[%d] in core\n", dev, ino, i);
+			return mip;
 		}
 	}
 		
 	for (i=0; i<NMINODE; i++){
 		mip = &minode[i];
-		if (mip->refCount == 0){
-			 //printf("allocating NEW minode[%d] for [%d %d]\n", i, dev, ino);
-			 mip->refCount = 1;
-			 mip->dev = dev;
-			 mip->ino = ino;
+		if (mip->refCount == 0)
+		{
+			//printf("allocating NEW minode[%d] for [%d %d]\n", i, dev, ino);
+			mip->refCount = 1;
+			mip->dev = dev;
+			mip->ino = ino;
 
-			 // get INODE of ino into buf[ ]    
-			 blk    = (ino-1)/8 + inode_start;
-			 offset = (ino-1) % 8;
+			// get INODE of ino into buf[ ]    
+			blk    = (ino-1)/8 + inode_start;
+			offset = (ino-1) % 8;
 
-			 //printf("iget: ino=%d blk=%d offset=%d\n", ino, blk, offset);
+			//printf("iget: ino=%d blk=%d offset=%d\n", ino, blk, offset);
 
-			 get_block(dev, blk, buf);
-			 ip = (INODE *)buf + offset;
-			 // copy INODE to mp->INODE
-			 mip->INODE = *ip;
-			 return mip;
+			get_block(dev, blk, buf);
+			ip = (INODE *)buf + offset;
+			// copy INODE to mp->INODE
+			mip->INODE = *ip;
+			return mip;
 		}
 	}
 	printf("PANIC: no more free minodes\n");
@@ -139,7 +141,9 @@ int getino(char *pathname)
 	MINODE *mip;
 	MINODE *newmip;
 	MTABLE *mt;
-	char *parent = dirname(pathname);
+	char pathnamecpy[64];
+	strcpy(pathnamecpy, pathname);
+	char *parent = dirname(pathnamecpy);
 
 	//printf("getino: pathname=%s\n", pathname);
 	if (strcmp(pathname, "/")==0)
@@ -160,12 +164,13 @@ int getino(char *pathname)
 		if ((strcmp(name[i], "..") == 0) && (mip->dev != root->dev) && (mip->ino == 2))
 		{
 			printf("UP cross mounting point\n");
-
+			MINODE *node;
 			// Get mountpoint MINODE
-			for (int i = 0; i < NMINODE; i++)
+			for (int i = 0; i < NMTABLE; i++)
 			{ 
-				MINODE *node = &minode[i];
-				if (node->dev == dev)
+				MTABLE *table = &mtable[i];
+				node = table->mntDirPtr;
+				if (node->dev == mip->dev)
 				{
 					newmip = node;
 					break;
@@ -173,8 +178,8 @@ int getino(char *pathname)
 			}
 
 			iput(mip);
-			pino = getino(parent);
-			mip = iget(dev, pino);
+			pino = getino("..");
+			mip = iget(dev, findino(node, pino));
 
 			dev = newmip->dev;
 			continue;

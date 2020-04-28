@@ -1,6 +1,19 @@
 int mount(char *devname, char *mountname)
 {
-	
+	if (strcmp(devname, "\0") == 0 || (strcmp(mountname, "\003") == 0 || strcmp(mountname, "/") == 0))
+	{
+		for (int i = 0; i < NMTABLE; i++)
+		{
+			MTABLE *table = &mtable[i];
+			if (table->dev == 0)
+			{
+				continue;
+			}
+
+			printf("%s is mounted as %s\n", table->devname, table->mntName);
+		}
+		return 0;
+	}
 
 	int fd, ino;
 	SUPER *sp;
@@ -102,8 +115,12 @@ int mount(char *devname, char *mountname)
 		mip->mptr = mt;
 		mt->mntDirPtr = mip;
 		mip->mounted = 1;
+		printf("mounted");
 		printf("cwd:[%d %d]\n", mt->dev, ino);
+		return 0;
 	}
+	printf("Was unable to mount. All slots are full.");
+	return -1;
 }
 
 int umount(char *filesys)
@@ -121,7 +138,6 @@ int umount(char *filesys)
 		{
 			continue;
 		}
-
 		if (strcmp(filesys, table->devname) == 0)
 		{
 			

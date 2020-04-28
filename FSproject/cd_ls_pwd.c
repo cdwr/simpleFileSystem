@@ -111,7 +111,6 @@ int ls(char *pathname)
 		chdir("..");
 	}
 	else{
-		printf("ls cwd\n");
 		ls_dir(running->cwd);
 	}
 	return 0;
