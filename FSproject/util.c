@@ -137,6 +137,7 @@ int getino(char *pathname)
 	char buf[BLKSIZE];
 	INODE *ip;
 	MINODE *mip;
+	MINODE *newmip;
 
 	//printf("getino: pathname=%s\n", pathname);
 	if (strcmp(pathname, "/")==0)
@@ -152,7 +153,13 @@ int getino(char *pathname)
 	
 	tokenize(pathname);
 
-	for (i=0; i<n; i++){
+	for (i = 0; i < n; i++)
+	{
+		if ((strcmp(name[i], "..") == 0) && (mip->dev != root->dev) && (mip->ino == 2))
+		{
+			printf("UP cross mounting point\n");
+			
+		}
 		//printf("===========================================\n");
 		//printf("getino: i=%d name[%d]=%s\n", i, i, name[i]);
 

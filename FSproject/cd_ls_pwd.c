@@ -63,6 +63,7 @@ int ls_file(MINODE *mip, char *name)
 	ctime_r((time_t *)&mip->INODE.i_mtime, time);
 	time[strlen(time)-1]=0;
 	printf(" %3d\t%3d\t%3d\t%20s\t%6d ", ip->i_links_count,  mip->INODE.i_uid, mip->INODE.i_gid, time, mip->INODE.i_size);
+	printf("ino=%d ", mip->ino);
 
 	if(S_ISLNK(mip->INODE.i_mode))
 	{

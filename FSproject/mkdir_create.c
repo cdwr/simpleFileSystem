@@ -77,7 +77,7 @@ int makedir(char *name)
 	pino = getino(parent);
 	pip = iget(dev, pino);
 	
-	//check its a directory
+	// check its a directory
 	if(!S_ISDIR(pip->INODE.i_mode)){
 		printf("ERROR:pip is not dir\n");
 		iput(pip);
