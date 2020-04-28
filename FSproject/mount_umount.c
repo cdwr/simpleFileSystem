@@ -94,8 +94,8 @@ int mount(char *devname, char *mountname)
 		}
 
 		mt->dev = dev;
-		strcpy(mt->devname, mountname);
-		strcpy(mt->mntName, regname);
+		strcpy(mt->devname, regname);
+		strcpy(mt->mntName, mountname);
 
 		// Mark mount_point's minode as being mounted on and let it point at the
 		// MOUNT table entry, which points back to the mount_point minode.
@@ -103,4 +103,51 @@ int mount(char *devname, char *mountname)
 		mt->mntDirPtr = mip;
 		mip->mounted = 1;
 	}
+}
+
+int umount(char *filesys)
+{
+	char buf[BLKSIZE];
+	int found = 0;
+	MINODE *mip;
+	MTABLE *table;
+
+	// Check if filesys is mounted
+	for(int x = 0; x < NMTABLE; x++)
+	{
+		table = &mtable[x];
+		if (table->dev == 0)
+		{
+			continue;
+		}
+
+		if (strcmp(filesys, table->devname) == 0)
+		{
+			
+			found = 1;
+			break;
+		}
+
+	}
+	if (!found){
+		printf("Filesys not mounted\n");
+		return -1;
+	}
+
+	//check if filesys is busy
+	for (int i = 0; i < NMINODE; i++)	
+	{ 
+		MINODE *node = &minode[i];
+		//I'm pretty sure this is how to search for it, the minode ray contains all open references, right?
+		if (node->dev == table->dev)
+		{
+			printf("Filesys is busy\n");
+			return -1;
+		}
+	}
+	//should we be marking mounted in iget?
+	table->mntDirPtr->mounted = 0;
+
+	iput(table->mntDirPtr);
+	return 0;
 }

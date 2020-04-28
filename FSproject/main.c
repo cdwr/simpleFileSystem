@@ -161,7 +161,7 @@ int main(int argc, char *argv[ ])
 
 	while(1)
 	{
-		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|rmfile|link|symlink|unlink|open|close|pfd|lseek|cat|cp|dup|dup2|write|mount|quit] ");
+		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|rmfile|link|symlink|unlink|open|close|pfd|lseek|cat|cp|dup|dup2|write|mount|umount|quit] ");
 		fgets(line, 128, stdin);
 		line[strlen(line)-1] = 0;
 
@@ -215,6 +215,8 @@ int main(int argc, char *argv[ ])
 			write_to_file(pathname, secondArg);
 		else if (strcmp(cmd, "mount") == 0)
 			mount(pathname, secondArg);
+		else if (strcmp(cmd, "umount") == 0)
+			umount(pathname);
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}
