@@ -1,6 +1,4 @@
-/****************************************************************************
-*                   KCW  Implement ext2 file system                         *
-*****************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -207,6 +205,8 @@ int main(int argc, char *argv[ ])
 			write_to_file(pathname, secondArg);
 		else if (strcmp(cmd, "mount") == 0)
 			mount(pathname, secondArg);
+		else if (strcmp(cmd, "umount") == 0)
+			umount(pathname);
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}

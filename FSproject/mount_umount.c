@@ -69,3 +69,47 @@ int mount(char *name, char *pathname)
 		printf("bmp=%d imap=%d inode_start = %d\n", mt->bmap, mt->imap, mt->inode_start);
 	}
 }
+
+int umount(char *filesys){
+	int fd;
+	SUPER *sp;
+	GD *gp;
+	char buf[BLKSIZE];
+	int found = 0;
+	MINODE * mip;
+	MTABLE *table;
+
+	// Check if filesys is mounted
+	for(int x = 0; x < NMTABLE; x++)
+	{
+		table = &mtable[x];
+		if (table->dev == 0)
+		{
+			continue;
+		}
+
+		if (strcmp(filesys, table->devname) == 0)
+		{
+			found = 1;
+			break;
+		}
+
+	}
+	if(!found){
+		printf("Filesys not mounted\n");
+		return -1;
+	}
+
+	//check if filesys is busy
+	for(int i = 0; i < NMINODE; i++){ //I'm pretty sure this is how to search for it, the minode ray contains all open references, right?
+		if(minode[i]->dev = table->dev){
+			printf("Filesys is busy\n");
+			return -1;
+		}
+	}
+	//should we be marking mounted in iget?
+	table->mntDirPtr->mounted = 0;
+
+	iput(table->mntDirPtr);
+	return 0;
+}
