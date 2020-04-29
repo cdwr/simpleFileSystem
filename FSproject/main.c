@@ -229,6 +229,13 @@ int main(int argc, char *argv[ ])
 			umount(pathname);
 		else if (strcmp(cmd, "sw") == 0)
 			sw();
+		else if (strcmp(cmd, "test") == 0){
+			printf("Testing:\n");
+			
+			printf("access(dir1, r) returned %d\n", access("dir1", 'r'));
+			printf("access(dir1, w) returned %d\n", access("dir1", 'w'));
+			printf("access(dir1, x) returned %d\n", access("dir1", 'x'));
+		}
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}
