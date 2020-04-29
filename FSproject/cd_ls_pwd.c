@@ -4,7 +4,7 @@ int chdir(char *pathname)
 {
 	// READ Chapter 11.7.3 HOW TO chdir
 	MINODE *mip;
-	printf("cwd:[%d %d]\n", running->cwd->dev,running->cwd->ino);
+	printf("cwd:[%d %d]\n", running->cwd->dev, running->cwd->ino);
 	if(pathname[0]<=0)
 	{
 		running->cwd = iget(root->dev, 2);

@@ -164,22 +164,21 @@ int getino(char *pathname)
 		if ((strcmp(name[i], "..") == 0) && (mip->dev != root->dev) && (mip->ino == 2))
 		{
 			printf("UP cross mounting point\n");
-			MINODE *node;
 			// Get mountpoint MINODE
 			for (int i = 0; i < NMTABLE; i++)
 			{ 
 				MTABLE *table = &mtable[i];
-				node = table->mntDirPtr;
-				if (node->dev == mip->dev)
+				if (table->dev == mip->dev)
 				{
-					newmip = node;
+					newmip = table->mntDirPtr;
 					break;
 				}
 			}
 
 			iput(mip);
 			pino = findino(newmip, newmip->ino);
-			mip = iget(mip->dev, pino);
+			mip = iget(newmip->dev, pino);
+			printf("dev=%d, ino=%d\n", mip->dev, pino);
 
 			dev = newmip->dev;
 			continue;

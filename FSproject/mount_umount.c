@@ -15,7 +15,7 @@ int mount(char *devname, char *mountname)
 		return 0;
 	}
 
-	int fd, ino;
+	int fd, ino, DEV;
 	SUPER *sp;
 	GD *gp;
 	MINODE *mip;
@@ -45,7 +45,7 @@ int mount(char *devname, char *mountname)
 		}
 	}
 
-	// Check if we already mounted this
+	// Find right TABLE entry
 	for(int x = 0; x < NMTABLE; x++)
 	{
 		MTABLE *mt = &mtable[x];
@@ -59,10 +59,10 @@ int mount(char *devname, char *mountname)
 			printf("open %s failed\n", devname);
 			exit(1);
 		}
-		//dev = fd;    // fd is the global dev
+		DEV = fd;    // fd is the global dev
 
 		/********** read super block  ****************/
-		get_block(dev, 1, buf);
+		get_block(DEV, 1, buf);
 		sp = (SUPER *)buf;
 
 		/* verify it's an ext2 file system ***********/
@@ -77,7 +77,7 @@ int mount(char *devname, char *mountname)
 		mt->ninodes = sp->s_inodes_count;
 		mt->nblocks = sp->s_blocks_count;
 
-		get_block(dev, 2, buf);
+		get_block(DEV, 2, buf);
 		gp = (GD *)buf;
 
 		mt->bmap = bmap = gp->bg_block_bitmap;
@@ -106,15 +106,15 @@ int mount(char *devname, char *mountname)
 			return -1;
 		}
 
-		mt->dev = fd;
+		mt->dev = DEV;
 		strcpy(mt->devname, regname);
 		strcpy(mt->mntName, mountname);
 
 		// Mark mount_point's minode as being mounted on and let it point at the
 		// MOUNT table entry, which points back to the mount_point minode.
 		mip->mptr = mt;
-		mt->mntDirPtr = mip;
 		mip->mounted = 1;
+		mt->mntDirPtr = mip;
 		printf("mounted\n");
 		printf("cwd:[%d %d]\n", mip->dev, mip->ino);
 		return 0;
