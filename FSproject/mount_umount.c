@@ -49,7 +49,7 @@ int mount(char *devname, char *mountname)
 	for(int x = 0; x < NMTABLE; x++)
 	{
 		MTABLE *mt = &mtable[x];
-		if (mt->dev == 0)
+		if (mt->dev != 0)
 		{
 			continue;
 		}
@@ -59,7 +59,7 @@ int mount(char *devname, char *mountname)
 			printf("open %s failed\n", devname);
 			exit(1);
 		}
-		dev = fd;    // fd is the global dev
+		//dev = fd;    // fd is the global dev
 
 		/********** read super block  ****************/
 		get_block(dev, 1, buf);
@@ -106,7 +106,7 @@ int mount(char *devname, char *mountname)
 			return -1;
 		}
 
-		mt->dev = dev;
+		mt->dev = fd;
 		strcpy(mt->devname, regname);
 		strcpy(mt->mntName, mountname);
 
@@ -115,8 +115,8 @@ int mount(char *devname, char *mountname)
 		mip->mptr = mt;
 		mt->mntDirPtr = mip;
 		mip->mounted = 1;
-		printf("mounted");
-		printf("cwd:[%d %d]\n", mt->dev, ino);
+		printf("mounted\n");
+		printf("cwd:[%d %d]\n", mip->dev, mip->ino);
 		return 0;
 	}
 	printf("Was unable to mount. All slots are full.");
