@@ -45,18 +45,6 @@ int init()
 
 	printf("init()\n");
 
-	ninodes = sp->s_inodes_count;
-	nblocks = sp->s_blocks_count;
-
-	get_block(dev, 2, buf); 
-	gp = (GD *)buf;
-
-	bmap = gp->bg_block_bitmap;
-	imap = gp->bg_inode_bitmap;
-	inode_start = gp->bg_inode_table;
-	printf("bmp=%d imap=%d inode_start = %d\n", bmap, imap, inode_start);
-	printf("nblocks=%d, ninodes=%d\n", nblocks, ninodes);
-
 	for (int i = 0; i < NMINODE; i++)
 	{
 		mip = &minode[i];
@@ -137,6 +125,17 @@ int main(int argc, char *argv[ ])
 	}
 
 	printf("EXT2 FS OK\n");
+	ninodes = sp->s_inodes_count;
+	nblocks = sp->s_blocks_count;
+
+	get_block(dev, 2, buf); 
+	gp = (GD *)buf;
+
+	bmap = gp->bg_block_bitmap;
+	imap = gp->bg_inode_bitmap;
+	inode_start = gp->bg_inode_table;
+	printf("bmp=%d imap=%d inode_start = %d\n", bmap, imap, inode_start);
+	printf("nblocks=%d, ninodes=%d\n", nblocks, ninodes);
 	
 	init();
 	mount_root();
