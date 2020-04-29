@@ -620,3 +620,45 @@ int sw(){
 	printf("RUnning proc: pid=%d\n", running->pid);
 	return 0;
 }
+
+
+int access(char *pathname, char mode) // mode ='r', 'w', 'x' 
+   {
+       /* if running is SUPERuser process: return OK;
+  
+       get INODE of pathname into memory;
+       if owner     : return OK if rwx --- --- mode bit is on
+       if same group: return OK if --- rwx --- mode bit is on
+       if other     : return OK if --- --- rwx mode bit is on
+       
+       return NO; */
+
+	if(running->uid == 0)
+		return 1;
+	
+	if(running->uid == mip->INODE.uid){
+		if(mode == 'r') (mip->INODE.i_mode & 1 << 8) ? continue : return 0;
+		else if(mode == 'w')(mip->INODE.i_mode & 1 << 5) ? continue : return 0;
+		else if(mode == 'x')(mip->INODE.i_mode & 1 << 2) ? continue : return 0;
+		return 1;
+	}
+	else if(running->gid == mip->INODE.gid){
+		if(mode == 'r') (mip->INODE.i_mode & 1 << 7) ? continue : return 0;
+		else if(mode == 'w')(mip->INODE.i_mode & 1 << 4) ? continue : return 0;
+		else if(mode == 'x')(mip->INODE.i_mode & 1 << 1) ? continue : return 0;
+		return 1;
+	}
+	else { //WTF does other mean??
+		if(mode == 'r') (mip->INODE.i_mode & 1 << 6) ? continue : return 0;
+		else if(mode == 'w')(mip->INODE.i_mode & 1 << 3) ? continue : return 0;
+		else if(mode == 'x')(mip->INODE.i_mode & 1 << 0) ? continue : return 0;
+		return 1;
+	}
+	
+	return -1;
+
+   }
+
+int maccess(MINODE *mip, char mode){  // same as access() but work on mip
+
+}
