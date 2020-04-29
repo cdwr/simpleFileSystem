@@ -178,8 +178,8 @@ int getino(char *pathname)
 			}
 
 			iput(mip);
-			pino = getino("..");
-			mip = iget(dev, findino(node, pino));
+			pino = findino(newmip, newmip->ino);
+			mip = iget(mip->dev, pino);
 
 			dev = newmip->dev;
 			continue;
@@ -211,9 +211,6 @@ int getino(char *pathname)
 			dev = mt->dev;
 			mip = iget(dev, 2);
 		}
-
-		iput(mip);                // release current mip
-		mip = iget(dev, ino);     // get next mip
 	 }
 
 	iput(mip);                   // release mip  

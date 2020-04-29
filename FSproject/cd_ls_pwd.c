@@ -63,17 +63,16 @@ int ls_file(MINODE *mip, char *name)
 	ctime_r((time_t *)&mip->INODE.i_mtime, time);
 	time[strlen(time)-1]=0;
 	printf(" %3d\t%3d\t%3d\t%20s\t%6d ", ip->i_links_count,  mip->INODE.i_uid, mip->INODE.i_gid, time, mip->INODE.i_size);
-	printf("ino=%d ", mip->ino);
 
 	if(S_ISLNK(mip->INODE.i_mode))
 	{
-		printf("%s -> %s\n", name, mip->INODE.i_block);
+		printf("\t%s -> %s", name, mip->INODE.i_block);
 	}
 	else
 	{
-		printf("%s\n", name);
+		printf("\t%s", name);
 	}
-	
+	printf("\t%4s[%d %d]\n", "", mip->dev, mip->ino);
 }
 
 int ls_dir(MINODE *mip)
