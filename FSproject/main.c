@@ -84,6 +84,9 @@ int mount_root()
 {
 	printf("mount_root()\n");
 	root = iget(dev, 2);
+	printf("### i_mode = %d \n", root->INODE.i_mode)
+	root->INODE.i_mode = 0777;
+	printf("### i_mode = %d \n", root->INODE.i_mode)
 }
 
 int main(int argc, char *argv[ ])
@@ -157,6 +160,14 @@ int main(int argc, char *argv[ ])
 	running->status = READY;
 	running->cwd = iget(dev, 2);
 	printf("root refCount = %d\n", root->refCount);
+
+
+	printf("Creating P1 as non-su process\n");
+	proc[1].uid = 1;
+	proc[1].status = READY;
+	proc[1].cwd-> = iget(dev, 2);
+	printf("root refCount = %d\n", root->refCount);
+
 
 	// WRTIE code here to create P1 as a USER process
 
