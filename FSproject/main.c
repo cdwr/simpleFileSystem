@@ -165,7 +165,7 @@ int main(int argc, char *argv[ ])
 	printf("Creating P1 as non-su process\n");
 	proc[1].uid = 1;
 	proc[1].status = READY;
-	proc[1].cwd-> = iget(dev, 2);
+	proc[1].cwd = iget(dev, 2);
 	printf("root refCount = %d\n", root->refCount);
 
 
