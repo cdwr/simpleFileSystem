@@ -609,3 +609,14 @@ char* mode_to_string(int mode)
 			return "ERROR, NOT VALID MODE!";
 	}
 }
+
+int sw(){
+	if(running->pid == 0)
+		running = &proc[1];
+	else
+	{
+		running = &proc[0];
+	}
+	printf("RUnning proc: pid=%d\n", running->pid);
+	return 0;
+}

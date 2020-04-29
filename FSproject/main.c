@@ -84,9 +84,7 @@ int mount_root()
 {
 	printf("mount_root()\n");
 	root = iget(dev, 2);
-	printf("### i_mode = %d \n", root->INODE.i_mode);
 	root->INODE.i_mode = 0x0777;
-	printf("### i_mode = %d \n", root->INODE.i_mode);
 }
 
 int main(int argc, char *argv[ ])
@@ -229,6 +227,8 @@ int main(int argc, char *argv[ ])
 			mount(pathname, secondArg);
 		else if (strcmp(cmd, "umount") == 0)
 			umount(pathname);
+		else if (strcmp(cmd, "sw") == 0)
+			sw();
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}
