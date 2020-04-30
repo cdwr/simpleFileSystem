@@ -1,7 +1,7 @@
 int write_file(int fd, char *buf, int nbytes)
 {
 	char *cp, *cq;
-	int block_12, block_13, *i_dbl, *di_db1, *di_db2, di_nb1, di_nb2;
+	int block_12, block_13, *indexDoubleBlock, *doubleIndirectIndex1, *doubleIndirectIndex2;
 	char indirectBuf[BLKSIZE], directBuf1[BLKSIZE], directBuf2[BLKSIZE], writeBuf[BLKSIZE], utilBuf[BLKSIZE];
 	int pblk, lblk, start, remain, count = 0;
 	OFT *oftp;
@@ -34,7 +34,7 @@ int write_file(int fd, char *buf, int nbytes)
 	memset(writeBuf, 0,BLKSIZE);
 	cq = buf;
 
-	// assign the openned file in running Proc to the local ptr oftp
+	// get fd and MINODE of OFTP
 	oftp = running->fd[fd];
 	mip = oftp->mptr;
 
@@ -66,15 +66,16 @@ int write_file(int fd, char *buf, int nbytes)
 				memset(utilBuf, 0, BLKSIZE);
 				put_block(mip->dev, block_12, utilBuf);
 			}
+
 			get_block(dev, block_12, indirectBuf);
-			i_dbl = (int *)indirectBuf;
+			indexDoubleBlock = (int *)indirectBuf;
 			
-			pblk = i_dbl[lblk - 12];
+			pblk = indexDoubleBlock[lblk - 12];
 			// no data present
 			if (pblk == 0)
 			{
-				i_dbl[lblk - 12] = balloc(mip->dev);
-				pblk = i_dbl[lblk - 12];
+				indexDoubleBlock[lblk - 12] = balloc(mip->dev);
+				pblk = indexDoubleBlock[lblk - 12];
 				put_block(mip->dev, block_12, indirectBuf);
 			}
 		}
@@ -94,25 +95,25 @@ int write_file(int fd, char *buf, int nbytes)
 			}
 		
 			get_block(dev, block_13, directBuf1);
-			di_db1 = (int *)directBuf1;
+			doubleIndirectIndex1 = (int *)directBuf1;
 			lblk -= (256 + 12);
 
-			if (di_db1[lblk / 256] == 0)
+			if (doubleIndirectIndex1[lblk / 256] == 0)
 			{
-				di_db1[lblk / 256] = balloc(mip->dev);
+				doubleIndirectIndex1[lblk / 256] = balloc(mip->dev);
 
 				put_block(mip->dev, block_13, directBuf1);
 			}
 
-			get_block(dev, di_db1[lblk / 256], directBuf2);
-			di_db2 = (int *)directBuf2;
+			get_block(dev, doubleIndirectIndex1[lblk / 256], directBuf2);
+			doubleIndirectIndex2 = (int *)directBuf2;
 
-			if (di_db2[lblk % 256] == 0)
+			if (doubleIndirectIndex2[lblk % 256] == 0)
 			{
-				di_db2[lblk % 256] = balloc(mip->dev);
-				pblk = di_db2[lblk % 256];
+				doubleIndirectIndex2[lblk % 256] = balloc(mip->dev);
+				pblk = doubleIndirectIndex2[lblk % 256];
 
-				put_block(mip->dev, di_db1[lblk / 256], directBuf2);
+				put_block(mip->dev, doubleIndirectIndex1[lblk / 256], directBuf2);
 			}
 		}
 
@@ -159,6 +160,7 @@ int write_file(int fd, char *buf, int nbytes)
 		put_block(mip->dev, pblk, writeBuf);
 
 	}
+
 	mip->dirty = 1;
 	printf("wrote %d char into file descriptor fd=%d\n", count, fd);
 	return nbytes;

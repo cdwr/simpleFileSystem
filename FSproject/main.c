@@ -173,7 +173,7 @@ int main(int argc, char *argv[ ])
 
 	while(1)
 	{
-		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|rmfile|link|symlink|unlink|open|close|pfd|lseek|cat|cp|dup|dup2|write|mount|umount|quit] ");
+		printf("input command : [ls|cd|pwd|mkdir|create|rmdir|rmfile|link|symlink|unlink|open|close|pfd|lseek|cat|cp|dup|dup2|write|mount|umount|sw|chmod|quit] ");
 		fgets(line, 128, stdin);
 		line[strlen(line)-1] = 0;
 
