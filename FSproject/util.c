@@ -644,19 +644,19 @@ int access(char *pathname, char mode) // mode ='r', 'w', 'x'
 	if(running->uid == mip->INODE.i_uid){
 		printf("access: same uid\n");
 		if(mode == 'r') (mip->INODE.i_mode & 1 << 8) ? (access = 1) : (access = 0);
-		else if(mode == 'w')(mip->INODE.i_mode & 1 << 5) ? (access = 1) : (access = 0);
-		else if(mode == 'x')(mip->INODE.i_mode & 1 << 2) ? (access = 1) : (access = 0);
+		else if(mode == 'w')(mip->INODE.i_mode & 1 << 7) ? (access = 1) : (access = 0);
+		else if(mode == 'x')(mip->INODE.i_mode & 1 << 6) ? (access = 1) : (access = 0);
 	}
 	else if(running->gid == mip->INODE.i_gid){
 		printf("access: same gid\n");
-		if(mode == 'r') (mip->INODE.i_mode & 1 << 7) ? (access = 1) : (access = 0);
+		if(mode == 'r') (mip->INODE.i_mode & 1 << 5) ? (access = 1) : (access = 0);
 		else if(mode == 'w')(mip->INODE.i_mode & 1 << 4) ? (access = 1) : (access = 0);
-		else if(mode == 'x')(mip->INODE.i_mode & 1 << 1) ? (access = 1) : (access = 0);
+		else if(mode == 'x')(mip->INODE.i_mode & 1 << 3) ? (access = 1) : (access = 0);
 	}
 	else { //WTF does other mean??
 		printf("access: other\n");
-		if(mode == 'r') (mip->INODE.i_mode & 1 << 6) ? (access = 1) : (access = 0);
-		else if(mode == 'w')(mip->INODE.i_mode & 1 << 3) ? (access = 1) : (access = 0);
+		if(mode == 'r') (mip->INODE.i_mode & 1 << 2) ? (access = 1) : (access = 0);
+		else if(mode == 'w')(mip->INODE.i_mode & 1 << 1) ? (access = 1) : (access = 0);
 		else if(mode == 'x')(mip->INODE.i_mode & 1 << 0) ? (access = 1) : (access = 0);
 	}
 	
