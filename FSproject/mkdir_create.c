@@ -232,7 +232,7 @@ int my_create_file(MINODE *pip, char *name){
 
 }
 
-int chmod(char *pathname, int mode)
+int mychmod(char *pathname, int mode)
 {
 	int ino;
     MINODE *mip;

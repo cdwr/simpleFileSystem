@@ -228,6 +228,8 @@ int main(int argc, char *argv[ ])
 			umount(pathname);
 		else if (strcmp(cmd, "sw") == 0)
 			sw();
+		else if (strcmp(cmd, "chmod") == 0)
+			mychmod(pathname, string_to_int(secondArg));
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}
