@@ -232,6 +232,7 @@ int main(int argc, char *argv[ ])
 		else if (strcmp(cmd, "test") == 0){
 			printf("Testing:\n");
 			
+			printf("uid = %d\n", running->uid);
 			printf("access(file1, r) returned %d\n", access("file1", 'r'));
 			printf("access(file1, w) returned %d\n", access("file1", 'w'));
 			printf("access(file1, x) returned %d\n", access("file1", 'x'));

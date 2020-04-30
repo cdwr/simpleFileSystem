@@ -648,7 +648,7 @@ int access(char *pathname, char mode) // mode ='r', 'w', 'x'
 		else if(mode == 'x')(mip->INODE.i_mode & 1 << 2) ? (access = 1) : (access = 0);
 	}
 	else if(running->gid == mip->INODE.i_gid){
-		printf("access: same uid\n");
+		printf("access: same gid\n");
 		if(mode == 'r') (mip->INODE.i_mode & 1 << 7) ? (access = 1) : (access = 0);
 		else if(mode == 'w')(mip->INODE.i_mode & 1 << 4) ? (access = 1) : (access = 0);
 		else if(mode == 'x')(mip->INODE.i_mode & 1 << 1) ? (access = 1) : (access = 0);
