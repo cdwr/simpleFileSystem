@@ -15,7 +15,8 @@ int rmdir(char *pathname){
 	{
 		if(running->uid != mip->INODE.i_uid)
 		{
-			printf("Invalid file permissions; user:%d, inode->uid:%d\n",running->uid, mip->INODE.i_uid);
+			//printf("Invalid file permissions; user:%d, inode->uid:%d\n",running->uid, mip->INODE.i_uid);
+			printf("Invalid file permissions\n");
 			iput(mip);
 			return -1;
 		}
