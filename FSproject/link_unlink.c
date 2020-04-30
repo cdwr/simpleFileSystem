@@ -128,9 +128,9 @@ int unlink(char *pathname)
 		//check if permissions are met
 	if(running->uid != 0)
 	{
-		if(running->uid != mip->INODE.i_uid)
+		if(running->uid != pip->INODE.i_uid)
 		{
-			printf("Invalid file permissions; user:%d, inode->uid:%d\n",running->uid, mip->INODE.i_uid);
+			printf("Invalid file permissions; user:%d, inode->uid:%d\n", running->uid, pip->INODE.i_uid);
 			iput(pip);
 			return -1;
 		}
