@@ -176,5 +176,3 @@ int write_to_file(char *pathname, char *what_to_write)
 	printf("Wrote %s into %s file.", what_to_write, pathname);
 	return 0;
 }
-
-
