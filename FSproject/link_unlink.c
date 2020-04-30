@@ -69,8 +69,8 @@ int link(char *oldpath, char *newpath)
 	}
 
 	//permissions check
-	if (!maccess(pip, 'w')){
-      printf("makedir: Access Denied\n")
+	if (!maccess(oldpip, 'w')){
+      printf("makedir: Access Denied\n");
       iput(oldmip);
 	  iput(newmip);
 	  return -1;

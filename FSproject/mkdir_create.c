@@ -93,7 +93,7 @@ int makedir(char *name)
 	
 	//permissions check
 	if (!maccess(pip, 'w')){
-      printf("makedir: Access Denied\n")
+      printf("makedir: Access Denied\n");
       iput(pip); 
 	  return -1;
 	}
@@ -243,7 +243,7 @@ int chmod(char *pathname, int mode)
     else
             dev = running->cwd->dev;
 
-    ino = getino(&dev, pathname);
+    ino = getino( pathname);
 
     if (ino == 0) 
 		return -1;
@@ -262,7 +262,7 @@ int chmod(char *pathname, int mode)
                     dev = root->dev;
             else
                     dev = running->cwd->dev;
-            ino = getino(&dev, linkname);
+            ino = getino(linkname);
             mip = iget(dev, ino);
     }
 	printf("mode: %o\n", mode);
