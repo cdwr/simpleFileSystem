@@ -1,4 +1,4 @@
-sudo mount diskimage /mnt
+sudo mount disk2 /mnt
 sudo ls -l /mnt
 sudo diff /mnt/tiny /mnt/tiny
 sudo diff /mnt/small /mnt/small1
