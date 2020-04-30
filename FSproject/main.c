@@ -37,7 +37,8 @@ char disk[128] = "mydisk";
 #include "symlink.c"
 #include "rmdir.c"
 #include "open_close_lseek.c"
-#include "cat_cp.c"
+#include "read.c"
+#include "write.c"
 #include "mount_umount.c"
 
 int init()
@@ -87,7 +88,6 @@ int mount_root()
 {
 	printf("mount_root()\n");
 	root = iget(dev, 2);
-	//root->INODE.i_mode = 0777000;
 	root->INODE.i_mode = 2047 | (root->INODE.i_mode & 0777000);
 }
 
