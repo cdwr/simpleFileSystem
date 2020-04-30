@@ -225,13 +225,25 @@ int main(int argc, char *argv[ ])
 
 int quit()
 {
-	int i;
-	MINODE *mip;
-	for (i=0; i<NMINODE; i++)
+	//
+	for (int i = 0; i < NMTABLE; i++)
 	{
-		mip = &minode[i];
-		if (mip->refCount > 0)
-		iput(mip);
+		MTABLE *mt = &mtable[i];
+		if (mt->dev != 0 && mt->dev != root->dev)
+		{
+			umount(mt->devname);
+		}
 	}
+
+	// free nodes.
+	for (int i = 0; i < NMINODE; i++)
+	{
+		MINODE *mip = &minode[i];
+		if (mip->refCount > 0)
+		{
+			iput(mip);
+		}
+	}
+
 	exit(0);
 }

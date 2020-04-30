@@ -161,6 +161,22 @@ void pwd(MINODE *wd, int child)
 	
 	if (wd->ino == root->ino)
 	{
+		if (wd->dev != root->dev)
+		{
+			//printf("UP cross mounting point\n");
+
+			// Get mountpoint MINODE
+			for (int i = 0; i < NMTABLE; i++)
+			{ 
+				MTABLE *table = &mtable[i];
+				if (table->dev == wd->dev)
+				{
+					printf("%s/", table->mntName);
+					return;
+				}
+			}
+		}
+
 		printf("/");
 		return;
 	}
@@ -169,8 +185,10 @@ void pwd(MINODE *wd, int child)
 
 	pip = iget(wd->dev, findino(wd, 0));
 	findmyname(pip, wd->ino, &name);
+	
 
-	if(wd->ino != root->ino){
+	if(wd->ino != root->ino)
+	{
 		pwd(pip, wd->ino);
 		iput(pip);
 		printf("%s/", name);
