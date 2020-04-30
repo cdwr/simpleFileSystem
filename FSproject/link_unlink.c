@@ -68,6 +68,14 @@ int link(char *oldpath, char *newpath)
 		return -1;
 	}
 
+	//permissions check
+	if (!maccess(pip, 'w')){
+      printf("makedir: Access Denied\n")
+      iput(oldmip);
+	  iput(newmip);
+	  return -1;
+	}
+
 	// Check if they are in the same filesystem.
 	if (oldmip->dev != newmip->dev)
 	{
@@ -115,6 +123,17 @@ int unlink(char *pathname)
 	{
 		printf("%s must be a directory\n");
 		return -1;
+	}
+
+		//check if permissions are met
+	if(running->uid != 0)
+	{
+		if(running->uid != mip->INODE.i_uid)
+		{
+			printf("Invalid file permissions; user:%d, inode->uid:%d\n",running->uid, mip->INODE.i_uid);
+			iput(pip);
+			return -1;
+		}
 	}
 
 	// Get child ino number and inode itself.

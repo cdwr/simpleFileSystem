@@ -149,6 +149,8 @@ int getino(char *pathname)
 	if (strcmp(pathname, "/")==0)
 			return 2;
 	
+
+
 	// starting mip = root OR CWD
 	if (pathname[0]=='/')
 		mip = root;
@@ -161,6 +163,13 @@ int getino(char *pathname)
 
 	for (i = 0; i < n; i++)
 	{
+
+		if(!maccess(mip, 'x')){ //why does this need to be in the for loop?
+			printf("getino: Access Denied")
+			iput(mip)
+			return -1;
+		}
+
 		if ((strcmp(name[i], "..") == 0) && (mip->dev != root->dev) && (mip->ino == 2))
 		{
 			//printf("UP cross mounting point\n");

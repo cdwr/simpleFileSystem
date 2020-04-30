@@ -15,6 +15,13 @@ int mount(char *devname, char *mountname)
 		return 0;
 	}
 
+		//check if permissions are met
+	if(running->uid != 0)
+	{
+		printf("Must be super user (uid=0)\n");
+		return -1;
+	}
+
 	int fd, ino, DEV;
 	SUPER *sp;
 	GD *gp;
@@ -165,6 +172,13 @@ int umount(char *filesys)
 			}
 		}
 	}
+
+	if(running->uid != 0)
+	{
+		printf("Must be super user (uid=0)\n");
+		return -1;
+	}
+
 	//should we be marking mounted in iget?
 	table->mntDirPtr->mounted = 0;
 

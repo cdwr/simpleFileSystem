@@ -6,6 +6,7 @@ int open_file(char *pathname, int mode)
 	MINODE *mip;
 	INODE *ip;
 	OFT *oftp;
+	char oMode;
 
 	// get pathname's inumber:
 	if (pathname[0] == '/')
@@ -26,6 +27,18 @@ int open_file(char *pathname, int mode)
 		printf("%s is not a regular file\n", pathname);
 		return -1;
 	}
+
+
+	if(mode == 'r' || mode == 'R')
+		oMode = 'r';
+	else
+		oMode = 'w';
+
+
+	if (!maccess(mip, oMode)){ // char = 'r' for R; 'w' for W, RW, APPEND
+      iput(mip); 
+	  return -1;
+   }
 
 	// Check whether the file is ALREADY opened with INCOMPATIBLE mode:
 	// If it's already opened for W, RW, APPEND : reject.

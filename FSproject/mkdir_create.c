@@ -91,6 +91,12 @@ int makedir(char *name)
 		return -1;
 	}
 	
+	//permissions check
+	if (!maccess(pip, 'w')){
+      printf("makedir: Access Denied\n")
+      iput(pip); 
+	  return -1;
+	}
 
 	mymkdir(pip, child);
 	pip->INODE.i_links_count++;
@@ -224,4 +230,43 @@ int my_create_file(MINODE *pip, char *name){
 	enter_name(pip, ino, name);
 	return 1;
 
+}
+
+int chmod(char *pathname, int mode)
+{
+	int ino;
+    MINODE *mip;
+    char linkname[64];
+
+    if (pathname[0] == '/')
+            dev = root->dev;
+    else
+            dev = running->cwd->dev;
+
+    ino = getino(&dev, pathname);
+
+    if (ino == 0) 
+		return -1;
+
+    mip = iget(dev, ino);
+
+	if(running->uid != mip->INODE.i_uid){
+		printf("Access denied: must be owner.\n");
+		return -1;
+	}
+
+    if (S_ISLNK(mip->INODE.i_mode)) {
+            readlink(pathname, linkname);
+            iput(mip);
+            if (linkname[0] == '/')
+                    dev = root->dev;
+            else
+                    dev = running->cwd->dev;
+            ino = getino(&dev, linkname);
+            mip = iget(dev, ino);
+    }
+	printf("mode: %o\n", mode);
+	mip->INODE.i_mode = mode | (mip->INODE.i_mode & 0777000);
+	mip->dirty = 1;
+	iput(mip);
 }

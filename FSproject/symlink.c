@@ -48,3 +48,27 @@ int mysymlink(char *target, char *linkpath)
 
 	printf("symlink created\n");
 }
+
+int myreadlink(char *pathname, char *linkname)
+{
+	int ino;
+	MINODE *mip;
+	INODE *ip;
+
+	if (pathname[0] == '/')
+		dev = root->dev;
+	else
+		dev = running->cwd->dev;
+
+	ino = getino(pathname);
+	mip = iget(dev, ino);
+
+
+	if (!S_ISLNK(mip->INODE.i_mode)) {
+		printf("file must be a symbolic link\n");
+		iput(mip);
+		return -1;
+	}
+	strcpy(linkname, (char *)mip->INODE.i_block);
+	return 0;
+}
