@@ -1,11 +1,12 @@
 int write_file(int fd, char *buf, int nbytes)
 {
+	char *cp, *cq;
+	int block_12, block_13, *i_dbl, *di_db1, *di_db2, di_nb1, di_nb2;
+	char indirectBuf[BLKSIZE], directBuf1[BLKSIZE], directBuf2[BLKSIZE], writeBuf[BLKSIZE], utilBuf[BLKSIZE];
+	int pblk, lblk, start, remain, count = 0;
 	OFT *oftp;
 	MINODE *mip;
 	INODE *ip;
-	int blk, lbk, ptrblk, start, remain, count, next;
-	char *cq, *cp, wBuf[BLKSIZE];
-	int ibuf[BLKSIZE / sizeof(int)];
 
 	// Check file descriptor to be within range.
 	if (fd < 0 || fd >= NFD)
@@ -30,89 +31,137 @@ int write_file(int fd, char *buf, int nbytes)
 		return -1;
 	}
 
-	// Get OFTP structure again, MINODE, INODE.
+	memset(writeBuf, 0,BLKSIZE);
+	cq = buf;
+
+	// assign the openned file in running Proc to the local ptr oftp
 	oftp = running->fd[fd];
 	mip = oftp->mptr;
-	ip = &mip->INODE;
-	cq = buf;
-	count = 0;
-	while (nbytes > 0)
+
+	while (nbytes)
 	{
-		lbk = oftp->offset / BLKSIZE;
+		lblk = oftp->offset / BLKSIZE;
 		start = oftp->offset % BLKSIZE;
 
-		// Deal with direct blockes
-		if (lbk < 12)
+		// direct block
+		if (lblk < 12)
 		{
-			if (ip->i_block[lbk] == 0)
+			if (mip->INODE.i_block[lblk] == 0)
 			{
-				ip->i_block[lbk] = balloc(mip->dev);
-				memset(wBuf, 0, BLKSIZE);
-				put_block(mip->dev, ip->i_block[lbk], wBuf);
+				// Allocate new block
+				mip->INODE.i_block[lblk] = balloc(mip->dev);
 			}
-			blk = ip->i_block[blk];
+
+			pblk = mip->INODE.i_block[lblk];
 		}
-		// Single indirect blocks
-		else if (lbk >= 12 && lbk < 256 + 12)
+		// single indirect block
+		else if (lblk >= 12 && lblk < 256 + 12)
 		{
-			if (ip->i_block[12] == 0)
+			block_12 = mip->INODE.i_block[12];
+			if (block_12 == 0)
 			{
-				ip->i_block[12] = balloc(mip->dev);
+				block_12 = mip->INODE.i_block[12] = balloc(mip->dev);
+
+				// zero out the block
+				memset(utilBuf, 0, BLKSIZE);
+				put_block(mip->dev, block_12, utilBuf);
 			}
-			get_block(mip->dev, ip->i_block[12], (char *)ibuf);
-			if (ibuf[lbk - 12] == 0)
+			get_block(dev, block_12, indirectBuf);
+			i_dbl = (int *)indirectBuf;
+			
+			pblk = i_dbl[lblk - 12];
+			// no data present
+			if (pblk == 0)
 			{
-				ibuf[lbk - 12] = balloc(mip->dev);
-				put_block(mip->dev, ip->i_block[12], (char *)ibuf);
+				i_dbl[lblk - 12] = balloc(mip->dev);
+				pblk = i_dbl[lblk - 12];
+				put_block(mip->dev, block_12, indirectBuf);
 			}
-			blk = ibuf[lbk - 12];
 		}
-		// Double indirect blocks
+		// double indirect block
 		else
 		{
-			lbk -= 256 + 12;
-			if (ip->i_block[13] == 0)
+			block_13 = mip->INODE.i_block[13];
+
+			if (block_13 == 0)
 			{
-				ip->i_block[13] = balloc(mip->dev);
+				mip->INODE.i_block[13] = balloc(mip->dev);
+				block_13 = mip->INODE.i_block[13];
+
+				// zero out buffer
+				memset(utilBuf, 0, BLKSIZE);
+				put_block(mip->dev, block_13, utilBuf);
+			}
+		
+			get_block(dev, block_13, directBuf1);
+			di_db1 = (int *)directBuf1;
+			lblk -= (256 + 12);
+
+			if (di_db1[lblk / 256] == 0)
+			{
+				di_db1[lblk / 256] = balloc(mip->dev);
+
+				put_block(mip->dev, block_13, directBuf1);
 			}
 
-			get_block(mip->dev, ip->i_block[13], (char *)ibuf);
-			if (ibuf[lbk / 256] == 0)
-			{
-				ibuf[lbk / 256] = balloc(mip->dev);
-				put_block(mip->dev, ip->i_block[13], (char *)ibuf);
-			}
+			get_block(dev, di_db1[lblk / 256], directBuf2);
+			di_db2 = (int *)directBuf2;
 
-			ptrblk = ibuf[lbk / 256];
-			get_block(mip->dev, ptrblk, (char *)ibuf);
-			if (ibuf[lbk % 256] == 0)
+			if (di_db2[lblk % 256] == 0)
 			{
-				ibuf[lbk %256] = balloc(mip->dev);
-				put_block(mip->dev, ptrblk, (char *)ibuf);
-			}
+				di_db2[lblk % 256] = balloc(mip->dev);
+				pblk = di_db2[lblk % 256];
 
-			blk = ibuf[lbk % 256];
+				put_block(mip->dev, di_db1[lblk / 256], directBuf2);
+			}
 		}
 
-		get_block(mip->dev, blk, wBuf);
-		cp = wBuf + start;
+		get_block(mip->dev, pblk, writeBuf);
+		cp = writeBuf + start;
 		remain = BLKSIZE - start;
-		next = nbytes < remain ? nbytes : remain;
-		memcpy(&wBuf[count], cq, next);
-		cq += next;
-		nbytes -= next;
-		remain -= next;
-		count += next;
-		oftp->offset += next;
-		if (oftp->offset > ip->i_size)
+
+		while (remain > 0 && nbytes > 0)
 		{
-			ip->i_size = oftp->offset;
+			if (remain <= nbytes)
+			{
+				memcpy(cp, cq, remain);
+				oftp->offset += remain;
+				count += remain;
+				nbytes -= remain;
+				if (oftp->offset > mip->INODE.i_size)
+				{
+					mip->INODE.i_size += remain;
+				}
+
+				remain -= remain;
+			}
+			else
+			{
+				memcpy(cp, cq, nbytes);
+				oftp->offset += nbytes;
+				count += nbytes;
+				remain -= nbytes;
+				if (oftp->offset > mip->INODE.i_size)
+				{
+					mip->INODE.i_size += nbytes;
+				}
+
+				nbytes -= nbytes;
+			}
+
+			// no more bytes to write
+			if (nbytes <= 0)
+			{
+				break;
+			}
 		}
-		put_block(mip->dev, blk, wBuf);
+
+		put_block(mip->dev, pblk, writeBuf);
+
 	}
 	mip->dirty = 1;
 	printf("wrote %d char into file descriptor fd=%d\n", count, fd);
-	return count;
+	return nbytes;
 }
 
 int cp(char *src, char *dest)
@@ -124,6 +173,7 @@ int cp(char *src, char *dest)
 	gd = open_file(dest, READWRITE);
 	while (n = read_file(fd, cbuf, BLKSIZE))
 	{
+		cbuf[n] = 0;
 		printf("buf=%s\n n=%d", cbuf, n);
 		write_file(gd, cbuf, n);
 	}

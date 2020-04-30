@@ -85,7 +85,7 @@ int mount_root()
 {
 	printf("mount_root()\n");
 	root = iget(dev, 2);
-	root->INODE.i_mode = 0x0777;
+	//root->INODE.i_mode = 0x0777;
 
 }
 

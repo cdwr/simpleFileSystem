@@ -53,7 +53,7 @@ int read_file(int fd, char *buf, int nbytes)
 		// Double indirect blocks
 		else
 		{
-			lbk -= 256 + 12;
+			lbk -= (256 + 12);
 			get_block(mip->dev, ip->i_block[13], (char *)bbuf);
 			get_block(mip->dev, bbuf[lbk / 256], (char *)bbuf);
 			blk = bbuf[lbk % 256];
@@ -65,7 +65,6 @@ int read_file(int fd, char *buf, int nbytes)
 		remain = BLKSIZE - start;
 		next = (nbytes < remain ? nbytes : remain);
 		next = (next < avil ? next : avil);
-
 
 		memcpy(&buf[count], cp, next);
 		*cp += next;
