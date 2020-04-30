@@ -35,7 +35,7 @@ int open_file(char *pathname, int mode)
 		oMode = 'w';
 
 
-	if (!maccess(mip, oMode)){ // char = 'r' for R; 'w' for W, RW, APPEND
+	if (!mAccess(mip, oMode)){ // char = 'r' for R; 'w' for W, RW, APPEND
       iput(mip); 
 	  return -1;
    }
