@@ -34,7 +34,8 @@ char disk[128] = "mydisk";
 #include "symlink.c"
 #include "rmdir.c"
 #include "open_close_lseek.c"
-#include "cat_cp.c"
+#include "read.c"
+#include "write.c"
 #include "mount_umount.c"
 
 int init()
