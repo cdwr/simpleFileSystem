@@ -85,6 +85,7 @@ int mount_root()
 	printf("mount_root()\n");
 	root = iget(dev, 2);
 	root->INODE.i_mode = 0x0777;
+
 }
 
 int main(int argc, char *argv[ ])
@@ -151,12 +152,10 @@ int main(int argc, char *argv[ ])
 	mt->inode_start;
 	mtable[0] = *mt;
 
-	printf("root refCount = %d\n", root->refCount);
-
 	printf("creating P0 as running process\n");
 	running = &proc[0];
 	running->status = READY;
-	running->cwd = iget(dev, 2);
+	running->cwd = root;
 	printf("root refCount = %d\n", root->refCount);
 
 
@@ -229,14 +228,6 @@ int main(int argc, char *argv[ ])
 			umount(pathname);
 		else if (strcmp(cmd, "sw") == 0)
 			sw();
-		else if (strcmp(cmd, "test") == 0){
-			printf("Testing:\n");
-			
-			printf("uid = %d\n", running->uid);
-			printf("access( , r) returned %d\n", access(pathname, 'r'));
-			printf("access( , w) returned %d\n", access(pathname, 'w'));
-			printf("access( , x) returned %d\n", access(pathname, 'x'));
-		}
 		else
 			printf("Invalid command \"%s\"", cmd);	
 	}
