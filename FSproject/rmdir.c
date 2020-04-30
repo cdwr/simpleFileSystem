@@ -11,8 +11,10 @@ int rmdir(char *pathname){
 	mip = iget(dev, ino);
 	
 	//check if permissions are met
-	if(running->uid != 0){
-		if(running->uid != mip->INODE.i_uid){
+	if(running->uid != 0)
+	{
+		if(running->uid != mip->INODE.i_uid)
+		{
 			printf("Invalid file permissions; user:%d, inode->uid:%d\n",running->uid, mip->INODE.i_uid);
 			iput(mip);
 			return -1;
@@ -20,14 +22,16 @@ int rmdir(char *pathname){
 	}
 		
 	//check if its a dir type
-	if(!S_ISDIR(mip->INODE.i_mode)){
+	if(!S_ISDIR(mip->INODE.i_mode))
+	{
 		printf("INODE is not dir\n");
 		iput(mip);
 		return -1;
 	}
 	
 	//check if inode is busy
-	if(mip->refCount != 1){
+	if(mip->refCount != 1)
+	{
 		printf("Dir in use. (mip->refCount = %d)\n", mip->refCount);
 		iput(mip);
 		return -1;

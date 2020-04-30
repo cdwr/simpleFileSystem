@@ -27,7 +27,7 @@ int chdir(char *pathname)
 	}
 
 	mip = iget(dev, ino);
-	if(!S_ISDIR(mip->INODE.i_mode))
+	if((mip->INODE.i_mode & 0100000) == 0100000)
 	{
 		iput(mip);
 		printf("cannot cd to non dir\n");

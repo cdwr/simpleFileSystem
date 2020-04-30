@@ -690,6 +690,6 @@ int maccess(MINODE *mip, char mode){  // same as access() but work on mip
 		else if(mode == 'w')(mip->INODE.i_mode & 1 << 1) ? (access = 1) : (access = 0);
 		else if(mode == 'x')(mip->INODE.i_mode & 1 << 0) ? (access = 1) : (access = 0);
 	}
-	
+
 	return access;
 }
