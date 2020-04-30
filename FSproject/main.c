@@ -233,9 +233,9 @@ int main(int argc, char *argv[ ])
 			printf("Testing:\n");
 			
 			printf("uid = %d\n", running->uid);
-			printf("access(file1, r) returned %d\n", access("file1", 'r'));
-			printf("access(file1, w) returned %d\n", access("file1", 'w'));
-			printf("access(file1, x) returned %d\n", access("file1", 'x'));
+			printf("access( , r) returned %d\n", access(pathname, 'r'));
+			printf("access( , w) returned %d\n", access(pathname, 'w'));
+			printf("access( , x) returned %d\n", access(pathname, 'x'));
 		}
 		else
 			printf("Invalid command \"%s\"", cmd);	
