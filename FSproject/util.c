@@ -166,7 +166,7 @@ int getino(char *pathname)
 
 		if(!mAccess(mip, 'x')){ //why does this need to be in the for loop?
 			printf("getino: Access Denied");
-			iput(mip)
+			iput(mip);
 			return -1;
 		}
 
