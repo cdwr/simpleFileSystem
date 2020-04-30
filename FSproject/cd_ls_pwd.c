@@ -10,18 +10,22 @@ int chdir(char *pathname)
 		running->cwd = iget(root->dev, 2);
 		return 0;
 	}
+
 	if(strcmp(pathname, "/") == 0)
 	{
 		printf("CDing to root\n");
 		running->cwd = iget(root->dev, 2);
 		return 0;
 	}
+
 	int ino = getino(pathname);
+
 	if(ino==0)
 	{
 		printf("directory doesn't exist\n");
 		return 0;
 	}
+
 	mip = iget(dev, ino);
 	if((mip->INODE.i_mode & 0100000) == 0100000)
 	{
@@ -81,16 +85,49 @@ int ls_dir(MINODE *mip)
 	DIR *dp;
 	char *cp;
 	MINODE *file;
-	printf("ls_dir: mip_ino=%d\n", mip->ino);
 	// Assume DIR has only one data block i_block[0]
 	get_block(mip->dev, mip->INODE.i_block[0], buf); 
 	dp = (DIR *)buf;
 	cp = buf;
 
-	while (cp < buf + BLKSIZE){
+	while (cp < buf + BLKSIZE)
+	{
 		strncpy(temp, dp->name, dp->name_len);
 		temp[dp->name_len] = 0;
-		file = iget(mip->dev, getino(temp));
+		int original_dev = dev;
+		int ino = getino(temp);
+
+		file = iget(original_dev, ino);
+		//printf("[%d %d]", dev, original_dev);
+
+		// Special case of mounting point
+		if (dev != original_dev)
+		{
+			// We have mounting up
+			if (strcmp(temp, "..") == 0)
+			{
+				dev = original_dev;
+			}
+			else
+			{
+
+				// mounting down
+				for (int i = 0; i < NMTABLE; i++)
+				{
+					MTABLE *mt = &mtable[i];
+					if (original_dev == mt->dev)
+					{
+						//printf("dev=%d ino=%d ", file->dev, file->ino);
+						file = mt->mntDirPtr;
+						//printf("dev=%d ino=%d ", file->dev, file->ino);
+						dev = file->dev;
+						break;
+					}
+				}
+			}
+
+		}
+		//printf("dev=%d ino=%d ", file->dev, file->ino);
 		ls_file(file, temp);
 		iput(file);
 		
@@ -103,7 +140,8 @@ int ls_dir(MINODE *mip)
 
 int ls(char *pathname)
 {
-	if(strcmp(pathname, "\0") != 0){
+	if(strcmp(pathname, "\0") != 0)
+	{
 		printf("ls %s\n", pathname);
 		chdir(pathname);
 		ls_dir(running->cwd);

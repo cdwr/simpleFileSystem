@@ -163,7 +163,8 @@ int getino(char *pathname)
 	{
 		if ((strcmp(name[i], "..") == 0) && (mip->dev != root->dev) && (mip->ino == 2))
 		{
-			printf("UP cross mounting point\n");
+			//printf("UP cross mounting point\n");
+
 			// Get mountpoint MINODE
 			for (int i = 0; i < NMTABLE; i++)
 			{ 
@@ -178,7 +179,7 @@ int getino(char *pathname)
 			iput(mip);
 			pino = findino(newmip, newmip->ino);
 			mip = iget(newmip->dev, pino);
-			printf("dev=%d, ino=%d\n", mip->dev, pino);
+			//printf("dev=%d, ino=%d\n", mip->dev, pino);
 
 			dev = newmip->dev;
 			continue;
@@ -188,6 +189,7 @@ int getino(char *pathname)
 		//printf("getino: i=%d name[%d]=%s\n", i, i, name[i]);
 
 		ino = search(mip, name[i]);
+		//printf("dev=%d, ino=%d, name=%s\n", dev, mip->ino, name[i]);
 		newmip = iget(dev, ino);
 		iput(mip);
 		mip = newmip;
@@ -201,7 +203,7 @@ int getino(char *pathname)
 
 		if (mip->mounted)
 		{
-			printf("DOWN cross mounting point\n");
+			//printf("DOWN cross mounting point\n");
 
 			mt = mip->mptr;
 
@@ -210,7 +212,7 @@ int getino(char *pathname)
 			dev = mt->dev;
 			mip = iget(dev, 2);
 		}
-	 }
+	}
 
 	iput(mip);                   // release mip  
 	return mip->ino;

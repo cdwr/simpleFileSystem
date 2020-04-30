@@ -57,7 +57,7 @@ int mount(char *devname, char *mountname)
 		if ((fd = open(devname, O_RDWR)) < 0)
 		{
 			printf("open %s failed\n", devname);
-			exit(1);
+			return -1;
 		}
 		DEV = fd;    // fd is the global dev
 
@@ -88,7 +88,7 @@ int mount(char *devname, char *mountname)
 		ino = getino(mountname);  //to get ino:
 		mip = iget(dev, ino);    //to get its minode in memory;
 
-		printf("ino=%d mode=%d\n", mip->ino, S_ISDIR(mip->INODE.i_mode));
+		//printf("ino=%d mode=%d\n", mip->ino, S_ISDIR(mip->INODE.i_mode));
 
 		// check its a directory
 		if (!S_ISDIR(mip->INODE.i_mode))
@@ -116,7 +116,7 @@ int mount(char *devname, char *mountname)
 		mip->mounted = 1;
 		mt->mntDirPtr = mip;
 		printf("mounted\n");
-		printf("cwd:[%d %d]\n", mip->dev, mip->ino);
+		//printf("cwd:[%d %d]\n", dev, mip->ino);
 		return 0;
 	}
 	printf("Was unable to mount. All slots are full.");
