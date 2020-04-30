@@ -164,7 +164,7 @@ int getino(char *pathname)
 	for (i = 0; i < n; i++)
 	{
 
-		if(!mymaccess(mip, 'x')){ //why does this need to be in the for loop?
+		if(!maccess(mip, 'x')){ //why does this need to be in the for loop?
 			printf("getino: Access Denied");
 			iput(mip);
 			return -1;
@@ -675,7 +675,7 @@ int access(char *pathname, char mode) // mode ='r', 'w', 'x'
 
    }
 
-int mymaccess(MINODE *mip, char mode){  // same as access() but work on mip
+int maccess(MINODE *mip, char mode){  // same as access() but work on mip
 	int access = -1;
 
 	if(running->uid == 0)

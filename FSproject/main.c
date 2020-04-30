@@ -12,6 +12,9 @@
 
 #include "type.h"
 
+//function prototypes
+int maccess(MINODE *mip, char mode);
+
 // global variables
 MINODE minode[NMINODE];
 MTABLE mtable[NMTABLE];

@@ -69,7 +69,7 @@ int link(char *oldpath, char *newpath)
 	}
 
 	//permissions check
-	if (!mymaccess(oldmip, 'w')){
+	if (!maccess(oldmip, 'w')){
       printf("makedir: Access Denied\n");
       iput(oldmip);
 	  iput(newmip);

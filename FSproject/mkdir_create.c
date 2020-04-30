@@ -92,7 +92,7 @@ int makedir(char *name)
 	}
 	
 	//permissions check
-	if (!mymaccess(pip, 'w')){
+	if (!maccess(pip, 'w')){
       printf("makedir: Access Denied\n");
       iput(pip); 
 	  return -1;
