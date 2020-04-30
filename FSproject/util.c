@@ -165,7 +165,7 @@ int getino(char *pathname)
 	{
 
 		if(!maccess(mip, 'x')){ //why does this need to be in the for loop?
-			printf("getino: Access Denied");
+			printf("getino: Access Denied (%d)\n", maccess(mip, 'x'));
 			iput(mip);
 			return -1;
 		}
@@ -632,8 +632,7 @@ int sw(){
 }
 
 
-int access(char *pathname, char mode) // mode ='r', 'w', 'x' 
-   {
+int access(char *pathname, char mode) {
        /* if running is SUPERuser process: return OK;
   
        get INODE of pathname into memory;
@@ -672,8 +671,7 @@ int access(char *pathname, char mode) // mode ='r', 'w', 'x'
 	
 	iput(mip);
 	return access;
-
-   }
+}
 
 int maccess(MINODE *mip, char mode){  // same as access() but work on mip
 	int access = -1;
