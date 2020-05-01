@@ -193,6 +193,6 @@ void pwd(MINODE *wd, int child)
 		iput(pip);
 		printf("%s/", name);
 	}
-	
-  return;
+
+	return;
 }

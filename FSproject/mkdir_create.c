@@ -64,15 +64,19 @@ int makedir(char *name)
 	char pathcpy[64];
 	char *parent, *child;
 	int pino;
-	if (name[0] == '/') {
+
+	// Check if we are creating directory in relative path or absolute.
+	if (name[0] == '/')
+	{
 		mip = root;
 		dev = root->dev;
 	} else {
 		mip = running->cwd;
 		dev = mip->dev;
 	}
+
 	strcpy(pathcpy, name);
-	child = basename(pathcpy);
+	child = basename(pathcpy); // basename destroys the string
 	parent = dirname(name);
 	pino = getino(parent);
 	pip = iget(dev, pino);
@@ -92,10 +96,11 @@ int makedir(char *name)
 	}
 	
 	//permissions check
-	if (!maccess(pip, 'w')){
-      printf("makedir: Access Denied\n");
-      iput(pip); 
-	  return -1;
+	if (!maccess(pip, 'w'))
+	{
+		printf("makedir: Access Denied\n");
+		iput(pip);
+		return -1;
 	}
 
 	mymkdir(pip, child);
@@ -123,8 +128,8 @@ int mymkdir(MINODE *pip, char *name)
 	INODE *ip = &mip->INODE;
 
 	ip->i_mode = 0x41ED;								// OR 040755: DIR type and permissions
-	ip->i_uid  = running->uid;							// Owner uid 
-	ip->i_gid  = running->gid;							// Group Id
+	ip->i_uid = running->uid;							// Owner uid 
+	ip->i_gid = running->gid;							// Group Id
 	ip->i_size = BLKSIZE;								// Size in bytes 
 	ip->i_links_count = 2;								// Links count=2 because of . and ..
 	ip->i_atime = ip->i_ctime = ip->i_mtime = time(0L);	// set to current time

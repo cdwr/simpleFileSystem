@@ -16,12 +16,11 @@ int link(char *oldpath, char *newpath)
 	{
 		dev = running->cwd->dev;
 	}
-	
+
 	// Get old ino, mip and ip.
 	oldino = getino(oldpath);
 	oldmip = iget(dev, oldino);
 	oldip = &oldmip->INODE;
-	
 
 	// Check if oldnode is regular file and is already a link
 	if (!S_ISREG(oldip->i_mode) && !S_ISLNK(oldip->i_mode))
@@ -70,10 +69,10 @@ int link(char *oldpath, char *newpath)
 
 	//permissions check
 	if (!maccess(oldmip, 'w')){
-      printf("makedir: Access Denied\n");
-      iput(oldmip);
-	  iput(newmip);
-	  return -1;
+		printf("makedir: Access Denied\n");
+		iput(oldmip);
+		iput(newmip);
+		return -1;
 	}
 
 	// Check if they are in the same filesystem.
@@ -162,7 +161,8 @@ int unlink(char *pathname)
 	iput(pip);
 }
 
-
+// function, which deallocates ALL the data blocks
+// of INODE. This is similar to printing the data blocks of INODE.
 int truncate(MINODE *mip)
 {
 	INODE *ip;
@@ -220,44 +220,5 @@ int truncate(MINODE *mip)
 		}
 
 		bdealloc(mip->dev, ip->i_block[13]);
-	}
-	// deal with triple indirect blocks
-	if (ip->i_block[14])
-	{
-		get_block(mip->dev, ip->i_block[14], (char *)buf1);
-		block_pointer1 = buf1;
-		while (block_pointer1 < &buf1[BLKSIZE / sizeof(int)])
-		{
-			if (*block_pointer1)
-			{
-				get_block(mip->dev, *block_pointer1, (char *)buf2);
-				block_pointer2 = buf2;
-				while (block_pointer2 < &buf2[BLKSIZE / sizeof(int)])
-				{
-					if (*block_pointer2)
-					{
-						get_block(mip->dev, *block_pointer2, (char *)buf3);
-						block_pointer3 = buf3;
-						while (block_pointer3 < &buf3[BLKSIZE / sizeof(int)])
-						{
-							if (*block_pointer3) bdealloc(mip->dev, *block_pointer3);
-							{
-								block_pointer3++;
-							}
-						}
-
-						bdealloc(mip->dev, *block_pointer2);
-					}
-
-					block_pointer2++;
-				}
-
-				bdealloc(mip->dev, *block_pointer1);
-			}
-
-			block_pointer1++;
-		}
-
-		bdealloc(mip->dev, ip->i_block[14]);
 	}
 }

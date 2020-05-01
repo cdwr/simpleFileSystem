@@ -1,3 +1,4 @@
+// read file given file descriptor given buffer and bytes.
 int read_file(int fd, char *buf, int nbytes)
 {
 	OFT *oftp;
@@ -78,6 +79,7 @@ int read_file(int fd, char *buf, int nbytes)
 	return count;
 }
 
+// read contents of the file into the output
 int cat(char *filename)
 {
 	char buf[BLKSIZE];

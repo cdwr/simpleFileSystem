@@ -11,6 +11,7 @@ int put_block(int dev, int blk, char *buf)
 	write(dev, buf, BLKSIZE);
 }
 
+// tokenizes the string, saving into gpath
 int tokenize(char *pathname)
 {
 	int i;
@@ -77,6 +78,7 @@ MINODE *iget(int dev, int ino)
 	return 0;
 }
 
+// puts MINODE into the disk
 void iput(MINODE *mip)
 {
 	int blk, disp;
@@ -100,6 +102,7 @@ void iput(MINODE *mip)
 	return 0;
 }
 
+// If name exists within directory.
 int search(MINODE *mip, char *name)
 {
 	char *cp, c, sbuf[BLKSIZE], temp[256];
@@ -133,6 +136,7 @@ int search(MINODE *mip, char *name)
 	return 0;
 }
 
+// get's INO number from a given pathname. Uses cross point mounting
 int getino(char *pathname)
 {
 	int i, ino, blk, disp, pino;
@@ -148,8 +152,6 @@ int getino(char *pathname)
 	//printf("getino: pathname=%s\n", pathname);
 	if (strcmp(pathname, "/")==0)
 			return 2;
-	
-
 
 	// starting mip = root OR CWD
 	if (pathname[0]=='/')
@@ -227,7 +229,8 @@ int getino(char *pathname)
 	return mip->ino;
 }
 
-int findmyname(MINODE *parent, u32 myino, char *myname) 
+// finds name of the file given parent MINODE and ino of file looking for.
+int findmyname(MINODE *parent, u32 myino, char *myname)
 {
 	// WRITE YOUR code here:
 	// search parent's data block for myino;
@@ -255,9 +258,10 @@ int findmyname(MINODE *parent, u32 myino, char *myname)
 	return;
 }
 
+// finds ino number of a given MINODE
 int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 {
-	char buf[BLKSIZE], *cp;   
+	char buf[BLKSIZE], *cp;
 	DIR *dp;
 	get_block(mip->dev, mip->INODE.i_block[0], buf);
 	cp = buf; 
@@ -268,6 +272,7 @@ int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 	return dp->inode;
 }
 
+// converts string to an integer
 int string_to_int(char *str)
 {
 	int num;
@@ -275,19 +280,23 @@ int string_to_int(char *str)
 	return num;
 }
 
+// test bit for 1 or 0
 int tst_bit(char *buf, int bit){
 	return buf[bit/8] & (1 << (bit % 8));
 }
 
+// set bit to 1
 int set_bit(char *buf, int bit){
 	buf[bit/8] |= (1 << (bit % 8));
 }
 
+// clear bit, setting it to 0
 int clr_bit(char *buf, int bit)
 {
 	buf[bit/8] &= (1 << (bit % 8));
 }
 
+// increment free inodes counter
 int incFreeInodes(int dev)
 {
 	char buf[BLKSIZE];
@@ -305,6 +314,7 @@ int incFreeInodes(int dev)
 	return 0;
 }
 
+// incremenet free blocks counter
 int incFreeBlocks(int dev)
 {
 	char buf[BLKSIZE];
@@ -322,6 +332,7 @@ int incFreeBlocks(int dev)
 	return 0;
 }
 
+// decrement free inodes counter
 int decFreeInodes(int dev){
 	// dec free INODes count in SUPEBLOCK
 	char buf[BLKSIZE]; 
@@ -337,7 +348,7 @@ int decFreeInodes(int dev){
 	put_block(dev, GDBLOCK, buf);
 }
 
-
+// decrement free blocks counter
 int decFreeBlocks(int dev){
 	// dec free Blocks count in SUPEBLOCK
 	char buf[BLKSIZE];
@@ -353,10 +364,12 @@ int decFreeBlocks(int dev){
 	put_block(dev, GDBLOCK, buf);
 }
 
+// allocate new INODE on the disk
 int ialloc(int dev)
 {
 	char buf[BLKSIZE];
 	
+	// get disk parameter imap
 	get_block(dev, imap, buf);
 	for(int i = 0; i < ninodes; i++)
 	{
@@ -373,6 +386,7 @@ int ialloc(int dev)
 	return 0;
 }
 
+// allocate new block on the disk
 int balloc(int dev)
 {
 	char buf[BLKSIZE];
@@ -397,6 +411,7 @@ int balloc(int dev)
 	return 0;
 }
 
+// deallocate INODE on the disk
 int idealloc(int dev, int ino)
 {
 	char buf[BLKSIZE];
@@ -417,6 +432,7 @@ int idealloc(int dev, int ino)
 	return 0;
 }
 
+// deallocate block on the disk.
 int bdealloc(int dev, int bno)
 {
 	char buf[BLKSIZE];
@@ -427,6 +443,7 @@ int bdealloc(int dev, int bno)
 	return 0;
 }
 
+// check if link is a symbolik link, get the actual block
 int read_link(char *pathname, char *link)
 {
 	int ino;
@@ -453,7 +470,7 @@ int read_link(char *pathname, char *link)
 	return 0;
 }
 
-
+// check if we can open given file
 int can_open(char *pathname, int mode)
 {
 	int ino, bitmask;
@@ -613,13 +630,14 @@ char* mode_to_string(int mode)
 			return "WRITE";
 		case READWRITE:
 			return "READ/WRITE";
-		case APPEND: 
+		case APPEND:
 			return "APPEND";
 		default:
 			return "ERROR, NOT VALID MODE!";
 	}
 }
 
+// switch betwen user 1 and 0
 int sw(){
 	if(running->pid == 0)
 		running = &proc[1];
@@ -631,16 +649,17 @@ int sw(){
 	return 0;
 }
 
+// check access of a given pathname with given mode.
+int access(char *pathname, char mode)
+{
+	/* if running is SUPERuser process: return OK;
 
-int access(char *pathname, char mode) {
-       /* if running is SUPERuser process: return OK;
-  
-       get INODE of pathname into memory;
-       if owner     : return OK if rwx --- --- mode bit is on
-       if same group: return OK if --- rwx --- mode bit is on
-       if other     : return OK if --- --- rwx mode bit is on
-       
-       return NO; */
+	get INODE of pathname into memory;
+	if owner     : return OK if rwx --- --- mode bit is on
+	if same group: return OK if --- rwx --- mode bit is on
+	if other     : return OK if --- --- rwx mode bit is on
+	
+	return NO; */
 
 	MINODE *mip;
 	int access = -1;
@@ -673,7 +692,8 @@ int access(char *pathname, char mode) {
 	return access;
 }
 
-int maccess(MINODE *mip, char mode){  // same as access() but work on mip
+// check access of a given MINODE with given mode.
+int maccess(MINODE *mip, char mode){
 	int access = -1;
 
 	if(running->uid == 0)

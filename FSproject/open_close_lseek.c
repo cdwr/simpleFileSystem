@@ -1,3 +1,4 @@
+// opens file with given mode.
 int open_file(char *pathname, int mode)
 {
 	printf("opening pathname=%s, with mode=%d\n", pathname, mode);
@@ -36,9 +37,9 @@ int open_file(char *pathname, int mode)
 
 
 	if (!maccess(mip, oMode)){ // char = 'r' for R; 'w' for W, RW, APPEND
-      iput(mip); 
-	  return -1;
-   }
+		iput(mip); 
+		return -1;
+	}
 
 	// Check whether the file is ALREADY opened with INCOMPATIBLE mode:
 	// If it's already opened for W, RW, APPEND : reject.
@@ -102,6 +103,7 @@ int open_file(char *pathname, int mode)
 	return i;
 }
 
+// closes open file given the file descriptor.
 int close_file(int fd)
 {
 	OFT *oftp;
@@ -133,6 +135,7 @@ int close_file(int fd)
 	return 0;
 }
 
+// moves open file current pointer to different index
 int lseek_file(int fd, int position)
 {
 	OFT *oftp;

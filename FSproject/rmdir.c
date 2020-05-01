@@ -1,4 +1,5 @@
-int rmdir(char *pathname){
+int rmdir(char *pathname)
+{
 	int ino;
 	MINODE *mip, *pip;
 
@@ -15,7 +16,7 @@ int rmdir(char *pathname){
 	{
 		if(running->uid != mip->INODE.i_uid)
 		{
-			printf("Invalid file permissions; user:%d, inode->uid:%d\n",running->uid, mip->INODE.i_uid);
+			printf("Invalid file permissions; user:%d, inode->uid:%d\n", running->uid, mip->INODE.i_uid);
 			iput(mip);
 			return -1;
 		}
