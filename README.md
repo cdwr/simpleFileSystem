@@ -1,8 +1,6 @@
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
@@ -45,7 +43,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://www.science.unitn.it/~fiorella/guidelinux/tlk/img84.gif)
+[![Product Name Screen Shot][product-screenshot]](https://github.com/cdwr/FSProject)
 
 This is a filesystem built from scratch, inspired by the EXT2 filesystem architecture. It's fully functionally functional, and includes a linux like command utility, with all basic filesystem commands implemented. With the addition of a bootloader, it could function as an independent operating system. Disks created can be mounted using the prebuilt command line, or can be mounted from any current linux distribution.
 
@@ -145,9 +143,14 @@ Project Link: [https://github.com/cdwr/FSProject](https://github.com/cdwr/FSProj
 
 
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-
+[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
+[contributors-url]: https://github.com/cdwr/FSProject/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
+[forks-url]: https://github.com/cdwr/FSProject/network/members
+[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
+[issues-url]: https://github.com/cdwr/FSProject/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/chris-wilson-55882816b/
+[product-screenshot]: https://www.science.unitn.it/~fiorella/guidelinux/tlk/img84.gif
