@@ -145,6 +145,7 @@ Project Link: [https://github.com/cdwr/FSProject](https://github.com/cdwr/FSProj
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/cdwr/FSProject.svg?style=for-the-badge
 [contributors-url]: https://github.com/cdwr/FSProject/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/cdwr/FSProject.svg?style=for-the-badge
 [forks-url]: https://github.com/cdwr/FSProject/network/members
