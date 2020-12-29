@@ -9,7 +9,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/cdwr/FSProject">
-    <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Ficon-library.com%2Ficon%2Ffile-system-icon-4.html&psig=AOvVaw38Cp-9bOOBZIrYAdi4re5j&ust=1609291955342000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCLi73O-F8u0CFQAAAAAdAAAAABAD" alt="Logo" width="80" height="80">
+    <img src="https://gestaltit.com/wp-content/uploads/2018/01/icon-file.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">File System Project</h3>
@@ -145,11 +145,10 @@ Project Link: [https://github.com/cdwr/FSProject](https://github.com/cdwr/FSProj
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
 [contributors-url]: https://github.com/cdwr/FSProject/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/cdwr/FSProject.svg?style=for-the-badge
 [forks-url]: https://github.com/cdwr/FSProject/network/members
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/cdwr/FSProject.svg?style=for-the-badge
 [issues-url]: https://github.com/cdwr/FSProject/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/chris-wilson-55882816b/
