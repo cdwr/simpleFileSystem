@@ -45,7 +45,7 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://github.com/cdwr/FSProject)
 
-This is a filesystem built from scratch, inspired by the EXT2 filesystem architecture. It's fully functionally functional, and includes a linux like command utility, with all basic filesystem commands implemented. With the addition of a bootloader, it could function as an independent operating system. Disks created can be mounted using the prebuilt command line, or can be mounted from any current linux distribution.
+This is a filesystem built from scratch, inspired by the EXT2 filesystem architecture. It's fully functionally functional, and includes a linux-like filesystem management command tool, with all basic filesystem commands implemented. With the addition of a bootloader and kernel, it could function as an independent operating system. Disks created can be mounted using the prebuilt command line, or can be mounted from any current linux distribution.
 
 ### Built With
 
